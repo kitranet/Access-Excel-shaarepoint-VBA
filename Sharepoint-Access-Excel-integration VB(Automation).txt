@@ -1,0 +1,2891 @@
+Option Compare Database
+
+Private Sub Command111_Click()
+On Error GoTo subError
+Dim xlApp As Excel.Application
+Dim xlBook As Excel.Workbook
+Dim xlSheet As Excel.Worksheet
+Dim xlSheet1 As Excel.Worksheet
+Dim i As Integer
+Dim SQL As String
+Dim SQL1 As String
+Dim SQL2 As String
+Dim SQL3 As String
+Dim j As String
+Dim k As String
+Dim l As Integer
+Dim m As Integer
+Dim r As Integer
+Dim s As Integer
+Dim t As String
+Dim u As String
+Dim rs1 As DAO.Recordset
+Dim rs2 As DAO.Recordset
+Dim rs3 As DAO.Recordset
+Dim rs4 As DAO.Recordset
+DoCmd.Hourglass (True)
+'Data being retreived from query
+'SQL = "SELECT ESC_prime.Escalation_ID, ESC_prime.Account_Name,  ESC_prime.Customer_Name " & _
+'" FROM ESC_prime" & _
+'" Where Esc_prime.Escalation_Status = ""Active""  or  Esc_prime.Escalation_status =  ""monitor"" " & _
+'" ORDER BY ESC_prime.Escalation_ID DESC ;"
+'SQL = "SELECT ESC_prime.Escalation_ID, ESC_prime.Account_Name,  ESC_prime.Customer_Name " & _
+'" FROM ESC_prime" & _
+'"Where Esc_prime.Escalation_ID= 236 ;"
+' " Where Esc_prime.Escalation_Status = ""Active""  or  Esc_prime.Escalation_status =  ""monitor"" " & _
+'" ORDER BY ESC_prime.Escalation_ID DESC ;"
+
+
+'SELECT [Resource Table].Stakeholder_Name, [Resource Table].Designation
+'FROM [Resource Table]
+'WHERE ((([Resource Table].Escalation_ID)=236));
+
+
+SQL = "SELECT ESC_prime.Escalation_ID, ESC_prime.Account_Name, ESC_prime.[Failure Mode], ESC_prime.Problem_Description, ESC_prime.Failure_Type, " & _
+"ESC_prime.Escalation_Status, ESC_prime.[DropCloth Customer?], ESC_prime.Escalation_Manager, ESC_prime.Current_Update, " & _
+"ESC_prime.At_Risk_Summary, ESC_prime.Escalation_Resolution_Criteria, ESC_prime.Closure_Target_Date, ESC_prime.Region, " & _
+"ESC_prime.Updated_Closure_Target_Date, ESC_prime.Priority, ESC_prime.Customer_Temperature, ESC_prime.[Root_Cause_at _Closure], " & _
+"ESC_prime.CAP, ESC_prime.Date_Escalation_Opened, ESC_prime.Days_Escalation_Open, ESC_prime.Date_Escalation_Put_in_Monitor, " & _
+"ESC_prime.Days_Escalation_Monitor, ESC_prime.Date_Escalation_Closed, ESC_prime.Total_Days, ESC_prime.[Vertical/Horizontal], " & _
+"ESC_prime.[Vertical/Horizontal], ESC_prime.[Product _if_Applicable], ESC_prime.Customer_Name, ESC_prime.Customer_Name, " & _
+"ESC_prime.Customer_Vertical " & _
+" FROM ESC_prime" & _
+" Where Esc_prime.Escalation_Status = ""Active""  or  Esc_prime.Escalation_status =  ""monitor"" " & _
+" ORDER BY ESC_prime.Escalation_ID DESC ;"
+Set rs1 = CurrentDb.OpenRecordset(SQL, dbOpenSnapshot)
+'Set rs2 = CurrentDb.OpenRecordset(SQL1, dbOpenSnapshot)
+If rs1.RecordCount = 0 Then
+MsgBox "No data selected for export", vbInformation + vbOKOnly, "No data exported"
+GoTo subExit
+End If
+' Build the spreadsheet
+Set xlApp = Excel.Application
+xlApp.Visible = False
+Set xlBook = xlApp.Workbooks.add
+Set xlSheet = xlBook.Worksheets(1)
+    xlApp.ActiveSheet.Cells.Select
+     ' does the "autofit" for all columns
+     xlApp.ActiveSheet.Cells.EntireColumn.AutoFit
+     ' selects the first cell to unselect all cells
+     xlSheet.Range("A1").Select
+'MsgBox j, vbOKOnly
+With xlSheet
+.Name = "Open Escalations"
+.Cells.Font.Name = "Calibri"
+.Cells.Font.Size = 11
+'set column widths
+.Columns("A").ColumnWidth = 40
+.Columns("B").ColumnWidth = 20
+.Columns("C").ColumnWidth = 20
+.Columns("D").ColumnWidth = 23
+.Columns("E").ColumnWidth = 20
+.Columns("F").ColumnWidth = 22
+.Columns("G").ColumnWidth = 20
+.Columns("H").ColumnWidth = 20
+.Columns("I").ColumnWidth = 20
+.Columns("J").ColumnWidth = 20
+.Range("A1", "G1").Merge
+.Range("A1").RowHeight = 25
+.Range("A1").Value = "Avaya - Proprietary and Confidential. For Limited Internal Distribution Only. The information contained in this document may not be distributed or reproduced, in whole or in part."
+.Range("A1").Font.Color = vbRed
+.Range("A1").Font.Size = 9
+.Range("A1").Font.Bold = True
+'ApXL.ActiveSheet.Cells.EntireColumn.AutoFit
+
+i = 2
+Do While Not rs1.EOF
+r = i
+.Range("A" & i).Value = "Escalation ID"
+.Range("A" & i).Interior.ColorIndex = 11
+.Range("A" & i).Font.ColorIndex = 2
+.Range("A" & i).Font.Bold = True
+'.Range("A" & i).Interior.Color = Red
+.Range("B" & i, "G" & i).Merge
+.Range("B" & i).HorizontalAlignment = xlCenter
+.Range("B" & i).Value = Nz(rs1!Escalation_ID, "")
+.Range("B" & i).Interior.ColorIndex = 11
+.Range("B" & i).Font.ColorIndex = 2
+.Range("B" & i).Font.Bold = True
+
+j = Nz(rs1("Escalation_ID"))
+k = j
+'MsgBox j, vbOKOnly
+i = i + 1
+.Range("A" & i).Value = "Escalation Name"
+.Range("A" & i).Font.Bold = True
+.Range("B" & i).Value = Nz(rs1!Account_Name, "")
+.Range("B" & i).WrapText = True
+.Range("C" & i).Value = "Customer Name"
+.Range("C" & i).Font.Bold = True
+.Range("D" & i).Value = Nz(rs1!Customer_Name, "")
+.Range("E" & i).Value = "Escalation Status"
+.Range("E" & i).Font.Bold = True
+.Range("F" & i, "G" & i).Merge
+.Range("F" & i).Value = Nz(rs1!Escalation_Status)
+.Range("F" & i).Font.ColorIndex = 41
+.Range("F" & i).Font.Bold = True
+i = i + 1
+.Range("A" & i).Value = "Failure Type"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).HorizontalAlignment = xlLeft
+.Range("A" & i).VerticalAlignment = xlCenter
+.Range("B" & i).Value = Nz(rs1!Failure_Type, "")
+.Range("B" & i).Font.ColorIndex = 41
+.Range("B" & i).Font.Bold = True
+.Range("C" & i).Value = "Failure Mode"
+.Range("C" & i).Font.Bold = True
+.Range("D" & i, "E" & i).Merge
+.Range("D" & i).Value = Nz(rs1![Failure Mode], "")
+.Range("D" & i).Font.ColorIndex = 41
+.Range("D" & i).Font.Bold = True
+.Range("F" & i).Value = "Customer Temperature"
+.Range("F" & i).Font.Bold = True
+.Range("G" & i).Value = Nz(rs1!Customer_Temperature, "")
+i = i + 1
+.Range("A" & i).Value = "Problem description"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).HorizontalAlignment = xlLeft
+.Range("A" & i).VerticalAlignment = xlCenter
+.Range("B" & i, "G" & i).Merge
+.Range("B" & i).Value = Nz(rs1!Problem_Description)
+.Range("B" & i).WrapText = True
+.Range("B" & i).RowHeight = 75
+.Range("B" & i).HorizontalAlignment = xlLeft
+.Range("B" & i).VerticalAlignment = xlTop
+i = i + 1
+.Range("A" & i).Value = "Drop Cloth Customer?"
+.Range("A" & i).Font.Bold = True
+.Range("B" & i).Value = Nz(rs1![DropCloth Customer?])
+.Range("C" & i, "D" & i).Merge
+.Range("C" & i).Value = "Customer Vertical"
+.Range("C" & i).Font.Bold = True
+.Range("E" & i).Value = Nz(rs1!Customer_Vertical, "")
+.Range("F" & i).Value = "Priority"
+.Range("F" & i).Font.Bold = True
+.Range("G" & i).Value = Nz(rs1!Priority, "")
+i = i + 1
+.Range("A" & i).Value = "Escalation Manager"
+.Range("A" & i).Font.Bold = True
+.Range("B" & i, "C" & i).Merge
+.Range("B" & i).Value = Nz(rs1!Escalation_Manager, "")
+.Range("D" & i).Value = "Region"
+.Range("D" & i).Font.Bold = True
+.Range("E" & i).Value = Nz(rs1!Region, "")
+.Range("F" & i).Value = "CAP"
+.Range("F" & i).Font.Bold = True
+.Range("G" & i).Value = Nz(rs1!CAP, "")
+i = i + 1
+.Range("A" & i).Value = "Current Update"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).HorizontalAlignment = xlLeft
+.Range("A" & i).VerticalAlignment = xlCenter
+t = PlainText(Nz(rs1!Current_Update, ""))
+'MsgBox t, vbOKOnly
+.Range("B" & i, "G" & i).Merge
+.Range("B" & i).Value = t
+.Range("B" & i).Cells.Font.Color = vbRed
+.Range("A" & i).RowHeight = 200
+.Range("B" & i).HorizontalAlignment = xlLeft
+.Range("B" & i).VerticalAlignment = xlTop
+i = i + 1
+.Range("A" & i).Value = "At Risk Summary"
+.Range("A" & i).WrapText = True
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).RowHeight = 30
+.Range("B" & i, "D" & i).Merge
+.Range("B" & i).Value = Nz(rs1!At_Risk_Summary, "")
+.Range("B" & i).WrapText = True
+.Range("E" & i).Value = "Product if applicable"
+'.Range("D" & i).WrapText = True
+.Range("E" & i).Font.Bold = True
+.Range("F" & i, "G" & i).Merge
+.Range("F" & i).Value = Nz(rs1![Product _if_Applicable], "")
+i = i + 1
+.Range("A" & i).Value = "Escalation resolution criteria"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).WrapText = True
+.Range("A" & i).RowHeight = 30
+.Range("B" & i, "G" & i).Merge
+u = PlainText(Nz(rs1!Escalation_Resolution_Criteria, ""))
+.Range("B" & i).Value = u
+.Range("B" & i).WrapText = True
+i = i + 1
+.Range("B" & i, "C" & i).Merge
+.Range("B" & i).Value = "Stake holder Name"
+.Range("B" & i).Font.Bold = True
+.Range("D" & i).Value = "Role"
+.Range("D" & i).Font.Bold = True
+.Range("E" & i, "F" & i).Merge
+.Range("E" & i).Value = "Stake holder Name"
+.Range("E" & i).Font.Bold = True
+.Range("G" & i).Value = "Role"
+.Range("G" & i).Font.Bold = True
+i = i + 1
+SQL1 = "SELECT [Resource Table].Stakeholder_Name , [Resource Table].Designation " & _
+"FROM [Resource Table] WHERE [Resource Table].Escalation_ID = " & j
+SQL2 = "SELECT Count([Resource Table].Escalation_ID) AS cnt " & _
+"FROM [Resource Table]" & _
+"WHERE [Resource Table].Escalation_ID = " & j
+SQL3 = "SELECT Blocking_Actions.Blocking_Action, Blocking_Actions.Resource_Name1, " & _
+"Blocking_Actions.Resource_Name2, Blocking_Actions.Due_Date, Blocking_Actions.New_Due_Date, " & _
+"Blocking_Actions.Due_Date_Slip_ctr, Blocking_Actions.Status " & _
+"FROM Blocking_Actions" & _
+" WHERE Blocking_Actions.Escalation_ID = " & j
+Set rs3 = CurrentDb.OpenRecordset(SQL2, dbOpenSnapshot)
+l = Nz(rs3("cnt"))
+m = Round(l / 2)
+Dim n As Integer
+n = m + 1
+Dim o As Integer
+o = i + m
+Dim p As Integer
+p = i
+Dim q As Integer
+'MsgBox l, vbOKOnly
+'MsgBox m, vbOKOnly
+Set rs2 = CurrentDb.OpenRecordset(SQL1, dbOpenSnapshot)
+Do While Not rs2.EOF
+.Range("B" & i, "C" & i).Merge
+.Range("B" & i).Value = Nz(rs2!Stakeholder_Name, "")
+.Range("B" & i).WrapText = True
+.Range("D" & i).Value = Nz(rs2!Designation, "")
+.Range("D" & i).WrapText = True
+On Error Resume Next
+rs2.MoveNext
+.Range("E" & i, "F" & i).Merge
+.Range("E" & i).Value = Nz(rs2!Stakeholder_Name, "")
+.Range("E" & i).WrapText = True
+.Range("G" & i).Value = Nz(rs2!Designation, "")
+.Range("G" & i).WrapText = True
+'if there are no records to avoid the error "error number 2147352567 no current record" below line is put in as it would stop and give have baked excel file
+On Error Resume Next
+i = i + 1
+rs2.MoveNext
+Loop
+p = p - 1
+q = i - 1
+.Range("A" & p, "A" & q).Merge
+On Error Resume Next
+.Range("A" & p).VerticalAlignment = xlCenter
+.Range("A" & p).HorizontalAlignment = xlLeft
+.Range("A" & p).Orientation = 0
+.Range("A" & p).Value = "Resources"
+.Range("A" & p).Font.Bold = True
+.Range("A" & p).Cells.AutoFit
+On Error Resume Next
+'ApXL.ActiveSheet.Cells.EntireColumn.AutoFit
+rs2.close
+Set rs2 = Nothing
+.Range("A" & i, "G" & i).Merge
+.Range("A" & i).HorizontalAlignment = xlCenter
+.Range("A" & i).Value = "Blocking Actions"
+.Range("A" & i).Interior.ColorIndex = 15
+.Range("A" & i).Font.ColorIndex = 2
+.Range("A" & i).Font.Bold = True
+i = i + 1
+.Range("A" & i).Value = "Blocking Action"
+.Range("A" & i).Font.Bold = True
+.Range("B" & i, "C" & i).Merge
+.Range("B" & i).Value = "Action Owner"
+'.Range("B" & i).HorizontalAlignment = xlCenter
+.Range("B" & i).Font.Bold = True
+.Range("D" & i).Value = "Due Date"
+.Range("D" & i).Font.Bold = True
+.Range("E" & i).Value = "New Due Date"
+.Range("E" & i).Font.Bold = True
+.Range("F" & i).Value = "Due Date Slip Counter"
+.Range("F" & i).Font.Bold = True
+.Range("G" & i).Value = "Status"
+.Range("G" & i).Font.Bold = True
+i = i + 1
+'MsgBox i, vbOKOnly
+Set rs4 = CurrentDb.OpenRecordset(SQL3, dbOpenSnapshot)
+Do While Not rs4.EOF
+.Range("A" & i).Value = Nz(rs4!Blocking_Action, "")
+.Range("A" & i).WrapText = True
+.Range("B" & i).Value = Nz(rs4!Resource_Name1, "")
+.Range("C" & i).Value = Nz(rs4!Resource_Name2, "")
+.Range("D" & i).Value = Nz(rs4!Due_Date, "")
+.Range("D" & i).NumberFormat = "mm/dd/yyyy"
+.Range("E" & i).Value = Nz(rs4!New_Due_Date, "")
+.Range("E" & i).NumberFormat = "mm/dd/yyyy"
+'//
+.Range("F" & i).Value = Nz(rs4!Due_Date_Slip_ctr, "")
+.Range("F" & i).NumberFormat = 0
+'//
+.Range("G" & i).Value = Nz(rs4!Status, "")
+On Error Resume Next
+i = i + 1
+rs4.MoveNext
+Loop
+rs4.close
+Set rs4 = Nothing
+'i = i + 1
+.Range("A" & i, "C" & i).Merge
+.Range("A" & i).Value = "Escalation Open Date"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).WrapText = True
+.Range("D" & i).Value = Nz(rs1!Date_Escalation_Opened, "")
+.Range("D" & i).NumberFormat = "mm/dd/yyyy"
+.Range("E" & i, "F" & i).Merge
+.Range("E" & i).Value = "Days Escalation in Open Status"
+.Range("E" & i).Font.Bold = True
+'//
+.Range("G" & i).Value = Nz(rs1!Days_Escalation_Open, "")
+.Range("G" & i).NumberFormat = 0
+'//
+.Range("A" & i, "G" & i).Interior.ColorIndex = 19
+i = i + 1
+.Range("A" & i, "C" & i).Merge
+.Range("A" & i).Value = "Closure Target Date"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).WrapText = True
+.Range("D" & i).Value = Nz(rs1!Closure_Target_Date, "")
+.Range("D" & i).NumberFormat = "mm/dd/yyyy"
+.Range("E" & i, "F" & i).Merge
+.Range("E" & i).Value = "Updated Closure Target Date"
+.Range("E" & i).Font.Bold = True
+.Range("G" & i).Value = Nz(rs1!Updated_Closure_Target_Date, "")
+.Range("G" & i).NumberFormat = "mm/dd/yyyy"
+.Range("A" & i, "G" & i).Interior.ColorIndex = 19
+i = i + 1
+.Range("A" & i, "C" & i).Merge
+.Range("A" & i).Value = "Date Escalation Put on Monitor"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).WrapText = True
+'Dim z As Date
+'z = Nz(rs1!Date_Escalation_Put_in_Monitor, "")
+'z = Format(z, shortdate)
+.Range("D" & i).Value = Nz(rs1!Date_Escalation_Put_in_Monitor, "")
+.Range("D" & i).NumberFormat = "mm/dd/yyyy"
+.Range("E" & i, "F" & i).Merge
+.Range("E" & i).Value = "Days Escalation in Monitor Status"
+.Range("E" & i).Font.Bold = True
+'//
+.Range("G" & i).Value = Nz(rs1!Days_Escalation_Monitor, "")
+.Range("G" & i).NumberFormat = 0
+'//
+.Range("A" & i, "G" & i).Interior.ColorIndex = 19
+i = i + 1
+.Range("A" & i, "C" & i).Merge
+.Range("A" & i).Value = "Date Closed"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).WrapText = True
+.Range("D" & i).Value = Nz(rs1!Date_Escalation_Closed, "")
+.Range("D" & i).NumberFormat = "mm/dd/yyyy"
+.Range("E" & i, "F" & i).Merge
+.Range("E" & i).Value = "Total Days"
+.Range("E" & i).Font.Bold = True
+'//
+.Range("G" & i).Value = Nz(rs1!Total_Days, "")
+.Range("G" & i).NumberFormat = 0
+'//
+.Range("A" & i, "G" & i).Interior.ColorIndex = 19
+
+i = i + 1
+
+.Range("A" & i, "G" & i).Merge
+.Range("A" & i).Interior.ColorIndex = 47
+i = i + 1
+'i = i + 2
+s = i - 1
+.Range("A" & r, "G" & s).Borders.LineStyle = xlContinuous
+
+rs1.MoveNext
+Loop
+End With
+On Error Resume Next
+DoCmd.Hourglass False
+
+
+rs1.close
+rs3.close
+
+Set rs1 = Nothing
+Set rs3 = Nothing
+
+'// code for closed escalation
+SQL = "SELECT ESC_prime.Escalation_ID, ESC_prime.Account_Name, ESC_prime.[Failure Mode], ESC_prime.Problem_Description,ESC_prime.Failure_Type, " & _
+"ESC_prime.Escalation_Status, ESC_prime.[DropCloth Customer?], ESC_prime.Escalation_Manager, ESC_prime.Current_Update, " & _
+"ESC_prime.At_Risk_Summary, ESC_prime.Escalation_Resolution_Criteria, ESC_prime.Closure_Target_Date, ESC_prime.Region, " & _
+"ESC_prime.Updated_Closure_Target_Date, ESC_prime.Priority, ESC_prime.Customer_Temperature, ESC_prime.[Root_Cause_at _Closure], " & _
+"ESC_prime.CAP, ESC_prime.Date_Escalation_Opened, ESC_prime.Days_Escalation_Open, ESC_prime.Date_Escalation_Put_in_Monitor, " & _
+"ESC_prime.Days_Escalation_Monitor, ESC_prime.Date_Escalation_Closed, ESC_prime.Total_Days, ESC_prime.[Vertical/Horizontal], " & _
+"ESC_prime.[Vertical/Horizontal], ESC_prime.[Product _if_Applicable], ESC_prime.Customer_Name, ESC_prime.Customer_Name, " & _
+"ESC_prime.Customer_Vertical " & _
+" FROM ESC_prime" & _
+" Where Esc_prime.Escalation_Status = ""Closed"" " & _
+" ORDER BY ESC_prime.Escalation_ID DESC ;"
+Set rs1 = CurrentDb.OpenRecordset(SQL, dbOpenSnapshot)
+'Set rs2 = CurrentDb.OpenRecordset(SQL1, dbOpenSnapshot)
+If rs1.RecordCount = 0 Then
+MsgBox "No data selected for export", vbInformation + vbOKOnly, "No data exported"
+GoTo subExit
+End If
+
+
+Set xlSheet1 = xlBook.Worksheets.add
+xlApp.ActiveSheet.Cells.Select
+     ' does the "autofit" for all columns
+     xlApp.ActiveSheet.Cells.EntireColumn.AutoFit
+     ' selects the first cell to unselect all cells
+     xlSheet1.Range("A1").Select
+'MsgBox j, vbOKOnly
+With xlSheet1
+.Name = "Closed Escalations"
+.Cells.Font.Name = "Calibri"
+.Cells.Font.Size = 11
+'set column widths
+.Columns("A").ColumnWidth = 40
+.Columns("B").ColumnWidth = 20
+.Columns("C").ColumnWidth = 20
+.Columns("D").ColumnWidth = 23
+.Columns("E").ColumnWidth = 20
+.Columns("F").ColumnWidth = 22
+.Columns("G").ColumnWidth = 20
+.Columns("H").ColumnWidth = 20
+.Columns("I").ColumnWidth = 20
+.Columns("J").ColumnWidth = 20
+.Range("A1", "G1").Merge
+.Range("A1").RowHeight = 25
+.Range("A1").Value = "Avaya - Proprietary and Confidential. For Limited Internal Distribution Only. The information contained in this document may not be distributed or reproduced, in whole or in part."
+.Range("A1").Font.Color = vbRed
+.Range("A1").Font.Size = 9
+.Range("A1").Font.Bold = True
+'ApXL.ActiveSheet.Cells.EntireColumn.AutoFit
+
+i = 2
+Do While Not rs1.EOF
+r = i
+.Range("A" & i).Value = "Escalation ID"
+.Range("A" & i).Interior.ColorIndex = 11
+.Range("A" & i).Font.ColorIndex = 2
+.Range("A" & i).Font.Bold = True
+'.Range("A" & i).Interior.Color = Red
+.Range("B" & i, "G" & i).Merge
+.Range("B" & i).HorizontalAlignment = xlCenter
+.Range("B" & i).Value = Nz(rs1!Escalation_ID, "")
+.Range("B" & i).Interior.ColorIndex = 11
+.Range("B" & i).Font.ColorIndex = 2
+.Range("B" & i).Font.Bold = True
+
+j = Nz(rs1("Escalation_ID"))
+k = j
+'MsgBox j, vbOKOnly
+i = i + 1
+.Range("A" & i).Value = "Escalation Name"
+.Range("A" & i).Font.Bold = True
+.Range("B" & i).Value = Nz(rs1!Account_Name, "")
+.Range("B" & i).WrapText = True
+.Range("C" & i).Value = "Customer Name"
+.Range("C" & i).Font.Bold = True
+.Range("D" & i).Value = Nz(rs1!Customer_Name, "")
+.Range("E" & i).Value = "Escalation Status"
+.Range("E" & i).Font.Bold = True
+.Range("F" & i, "G" & i).Merge
+.Range("F" & i).Value = Nz(rs1!Escalation_Status)
+.Range("F" & i).Font.ColorIndex = 41
+.Range("F" & i).Font.Bold = True
+i = i + 1
+.Range("A" & i).Value = "Failure Type"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).HorizontalAlignment = xlLeft
+.Range("A" & i).VerticalAlignment = xlCenter
+.Range("B" & i).Value = Nz(rs1!Failure_Type, "")
+.Range("B" & i).Font.ColorIndex = 41
+.Range("B" & i).Font.Bold = True
+.Range("C" & i).Value = "Failure Mode"
+.Range("C" & i).Font.Bold = True
+.Range("D" & i, "E" & i).Merge
+.Range("D" & i).Value = Nz(rs1![Failure Mode], "")
+.Range("D" & i).Font.ColorIndex = 41
+.Range("D" & i).Font.Bold = True
+.Range("F" & i).Value = "Customer Temperature"
+.Range("F" & i).Font.Bold = True
+.Range("G" & i).Value = Nz(rs1!Customer_Temperature, "")
+
+i = i + 1
+
+.Range("A" & i).Value = "Problem description"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).HorizontalAlignment = xlLeft
+.Range("A" & i).VerticalAlignment = xlCenter
+.Range("B" & i, "G" & i).Merge
+.Range("B" & i).Value = Nz(rs1!Problem_Description)
+.Range("B" & i).WrapText = True
+.Range("B" & i).RowHeight = 75
+.Range("B" & i).HorizontalAlignment = xlLeft
+.Range("B" & i).VerticalAlignment = xlTop
+i = i + 1
+.Range("A" & i).Value = "Drop Cloth Customer?"
+.Range("A" & i).Font.Bold = True
+.Range("B" & i).Value = Nz(rs1![DropCloth Customer?])
+.Range("C" & i, "D" & i).Merge
+.Range("C" & i).Value = "Customer Vertical"
+.Range("C" & i).Font.Bold = True
+.Range("E" & i).Value = Nz(rs1!Customer_Vertical, "")
+.Range("F" & i).Value = "Priority"
+.Range("F" & i).Font.Bold = True
+.Range("G" & i).Value = Nz(rs1!Priority, "")
+i = i + 1
+.Range("A" & i).Value = "Escalation Manager"
+.Range("A" & i).Font.Bold = True
+.Range("B" & i, "C" & i).Merge
+.Range("B" & i).Value = Nz(rs1!Escalation_Manager, "")
+.Range("D" & i).Value = "Region"
+.Range("D" & i).Font.Bold = True
+.Range("E" & i).Value = Nz(rs1!Region, "")
+.Range("F" & i).Value = "CAP"
+.Range("F" & i).Font.Bold = True
+.Range("G" & i).Value = Nz(rs1!CAP, "")
+i = i + 1
+.Range("A" & i).Value = "Final Update"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).HorizontalAlignment = xlLeft
+.Range("A" & i).VerticalAlignment = xlCenter
+t = PlainText(Nz(rs1!Current_Update, ""))
+'MsgBox t, vbOKOnly
+.Range("B" & i, "G" & i).Merge
+.Range("B" & i).Value = t
+.Range("B" & i).Cells.Font.Color = vbRed
+.Range("A" & i).RowHeight = 200
+.Range("B" & i).HorizontalAlignment = xlLeft
+.Range("B" & i).VerticalAlignment = xlTop
+i = i + 1
+.Range("A" & i).Value = "At Risk Summary"
+.Range("A" & i).WrapText = True
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).RowHeight = 30
+.Range("B" & i, "D" & i).Merge
+.Range("B" & i).Value = Nz(rs1!At_Risk_Summary, "")
+.Range("B" & i).WrapText = True
+.Range("E" & i).Value = "Product if applicable"
+'.Range("D" & i).WrapText = True
+.Range("E" & i).Font.Bold = True
+.Range("F" & i, "G" & i).Merge
+.Range("F" & i).Value = Nz(rs1![Product _if_Applicable], "")
+i = i + 1
+.Range("A" & i).Value = "Escalation resolution criteria"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).WrapText = True
+.Range("A" & i).RowHeight = 30
+.Range("B" & i, "G" & i).Merge
+u = PlainText(Nz(rs1!Escalation_Resolution_Criteria, ""))
+.Range("B" & i).Value = u
+.Range("B" & i).WrapText = True
+i = i + 1
+.Range("B" & i, "C" & i).Merge
+.Range("B" & i).Value = "Stake holder Name"
+.Range("B" & i).Font.Bold = True
+.Range("D" & i).Value = "Role"
+.Range("D" & i).Font.Bold = True
+.Range("E" & i, "F" & i).Merge
+.Range("E" & i).Value = "Stake holder Name"
+.Range("E" & i).Font.Bold = True
+.Range("G" & i).Value = "Role"
+.Range("G" & i).Font.Bold = True
+i = i + 1
+SQL1 = "SELECT [Resource Table].Stakeholder_Name , [Resource Table].Designation " & _
+"FROM [Resource Table] WHERE [Resource Table].Escalation_ID = " & j
+SQL2 = "SELECT Count([Resource Table].Escalation_ID) AS cnt " & _
+"FROM [Resource Table]" & _
+"WHERE [Resource Table].Escalation_ID = " & j
+SQL3 = "SELECT Blocking_Actions.Blocking_Action, Blocking_Actions.Resource_Name1, " & _
+"Blocking_Actions.Resource_Name2, Blocking_Actions.Due_Date, Blocking_Actions.New_Due_Date, " & _
+"Blocking_Actions.Due_Date_Slip_ctr, Blocking_Actions.Status " & _
+"FROM Blocking_Actions" & _
+" WHERE Blocking_Actions.Escalation_ID = " & j
+Set rs3 = CurrentDb.OpenRecordset(SQL2, dbOpenSnapshot)
+l = Nz(rs3("cnt"))
+m = Round(l / 2)
+Dim n1 As Integer
+n1 = m + 1
+Dim o1 As Integer
+o1 = i + m
+Dim p1 As Integer
+p1 = i
+Dim q1 As Integer
+'MsgBox l, vbOKOnly
+'MsgBox m, vbOKOnly
+Set rs2 = CurrentDb.OpenRecordset(SQL1, dbOpenSnapshot)
+Do While Not rs2.EOF
+.Range("B" & i, "C" & i).Merge
+.Range("B" & i).Value = Nz(rs2!Stakeholder_Name, "")
+.Range("B" & i).WrapText = True
+.Range("D" & i).Value = Nz(rs2!Designation, "")
+.Range("D" & i).WrapText = True
+On Error Resume Next
+rs2.MoveNext
+.Range("E" & i, "F" & i).Merge
+.Range("E" & i).Value = Nz(rs2!Stakeholder_Name, "")
+.Range("E" & i).WrapText = True
+.Range("G" & i).Value = Nz(rs2!Designation, "")
+.Range("G" & i).WrapText = True
+'if there are no records to avoid the error "error number 2147352567 no current record" below line is put in as it would stop and give have baked excel file
+On Error Resume Next
+i = i + 1
+rs2.MoveNext
+Loop
+p1 = p1 - 1
+q1 = i - 1
+.Range("A" & p1, "A" & q1).Merge
+On Error Resume Next
+.Range("A" & p1).VerticalAlignment = xlCenter
+.Range("A" & p1).HorizontalAlignment = xlLeft
+.Range("A" & p1).Orientation = 0
+.Range("A" & p1).Value = "Resources"
+.Range("A" & p1).Font.Bold = True
+.Range("A" & p1).Cells.AutoFit
+On Error Resume Next
+'ApXL.ActiveSheet.Cells.EntireColumn.AutoFit
+rs2.close
+Set rs2 = Nothing
+.Range("A" & i, "G" & i).Merge
+.Range("A" & i).HorizontalAlignment = xlCenter
+.Range("A" & i).Value = "Blocking Actions"
+.Range("A" & i).Interior.ColorIndex = 15
+.Range("A" & i).Font.ColorIndex = 2
+.Range("A" & i).Font.Bold = True
+i = i + 1
+.Range("A" & i).Value = "Blocking Action"
+.Range("A" & i).Font.Bold = True
+.Range("B" & i, "C" & i).Merge
+.Range("B" & i).Value = "Action Owner"
+'.Range("B" & i).HorizontalAlignment = xlCenter
+.Range("B" & i).Font.Bold = True
+.Range("D" & i).Value = "Due Date"
+.Range("D" & i).Font.Bold = True
+.Range("E" & i).Value = "New Due Date"
+.Range("E" & i).Font.Bold = True
+.Range("F" & i).Value = "Due Date Slip Counter"
+.Range("F" & i).Font.Bold = True
+.Range("G" & i).Value = "Status"
+.Range("G" & i).Font.Bold = True
+i = i + 1
+'MsgBox i, vbOKOnly
+Set rs4 = CurrentDb.OpenRecordset(SQL3, dbOpenSnapshot)
+Do While Not rs4.EOF
+.Range("A" & i).Value = Nz(rs4!Blocking_Action, "")
+.Range("A" & i).WrapText = True
+.Range("B" & i).Value = Nz(rs4!Resource_Name1, "")
+.Range("C" & i).Value = Nz(rs4!Resource_Name2, "")
+.Range("D" & i).Value = Nz(rs4!Due_Date, "")
+.Range("D" & i).NumberFormat = "mm/dd/yyyy"
+.Range("E" & i).Value = Nz(rs4!New_Due_Date, "")
+.Range("E" & i).NumberFormat = "mm/dd/yyyy"
+'//
+.Range("F" & i).Value = Nz(rs4!Due_Date_Slip_ctr, "")
+.Range("F" & i).NumberFormat = 0
+'//
+.Range("G" & i).Value = Nz(rs4!Status, "")
+On Error Resume Next
+i = i + 1
+rs4.MoveNext
+Loop
+rs4.close
+Set rs4 = Nothing
+'i = i + 1
+.Range("A" & i, "C" & i).Merge
+.Range("A" & i).Value = "Escalation Open Date"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).WrapText = True
+.Range("D" & i).Value = Nz(rs1!Date_Escalation_Opened, "")
+.Range("D" & i).NumberFormat = "mm/dd/yyyy"
+.Range("E" & i, "F" & i).Merge
+.Range("E" & i).Value = "Days Escalation in Open Status"
+.Range("E" & i).Font.Bold = True
+'//
+.Range("G" & i).Value = Nz(rs1!Days_Escalation_Open, "")
+.Range("G" & i).NumberFormat = 0
+'//
+.Range("A" & i, "G" & i).Interior.ColorIndex = 19
+i = i + 1
+.Range("A" & i, "C" & i).Merge
+.Range("A" & i).Value = "Closure Target Date"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).WrapText = True
+.Range("D" & i).Value = Nz(rs1!Closure_Target_Date, "")
+.Range("D" & i).NumberFormat = "mm/dd/yyyy"
+.Range("E" & i, "F" & i).Merge
+.Range("E" & i).Value = "Updated Closure Target Date"
+.Range("E" & i).Font.Bold = True
+.Range("G" & i).Value = Nz(rs1!Updated_Closure_Target_Date, "")
+.Range("G" & i).NumberFormat = "mm/dd/yyyy"
+.Range("A" & i, "G" & i).Interior.ColorIndex = 19
+i = i + 1
+.Range("A" & i, "C" & i).Merge
+.Range("A" & i).Value = "Date Escalation Put on Monitor"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).WrapText = True
+'Dim z As Date
+'z = Nz(rs1!Date_Escalation_Put_in_Monitor, "")
+'z = Format(z, shortdate)
+.Range("D" & i).Value = Nz(rs1!Date_Escalation_Put_in_Monitor, "")
+.Range("D" & i).NumberFormat = "mm/dd/yyyy"
+.Range("E" & i, "F" & i).Merge
+.Range("E" & i).Value = "Days Escalation in Monitor Status"
+.Range("E" & i).Font.Bold = True
+'//
+.Range("G" & i).Value = Nz(rs1!Days_Escalation_Monitor, "")
+.Range("G" & i).NumberFormat = 0
+'//
+.Range("A" & i, "G" & i).Interior.ColorIndex = 19
+i = i + 1
+.Range("A" & i, "C" & i).Merge
+.Range("A" & i).Value = "Date Closed"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).WrapText = True
+.Range("D" & i).Value = Nz(rs1!Date_Escalation_Closed, "")
+.Range("D" & i).NumberFormat = "mm/dd/yyyy"
+.Range("E" & i, "F" & i).Merge
+.Range("E" & i).Value = "Total Days"
+.Range("E" & i).Font.Bold = True
+'//
+.Range("G" & i).Value = Nz(rs1!Total_Days, "")
+.Range("G" & i).NumberFormat = 0
+'//
+.Range("A" & i, "G" & i).Interior.ColorIndex = 19
+
+i = i + 1
+
+.Range("A" & i, "G" & i).Merge
+.Range("A" & i).Interior.ColorIndex = 47
+i = i + 1
+'i = i + 2
+s = i - 1
+.Range("A" & r, "G" & s).Borders.LineStyle = xlContinuous
+
+rs1.MoveNext
+Loop
+End With
+subExit:
+On Error Resume Next
+DoCmd.Hourglass False
+
+
+rs1.close
+rs3.close
+
+Set rs1 = Nothing
+Set rs3 = Nothing
+'// Rearranging Excel worksheets
+Worksheets("Open Escalations").Select
+Worksheets("Open Escalations").Move Before:=Worksheets(1)
+xlApp.Visible = True
+
+Exit Sub
+
+subError:
+MsgBox "Error Number:" & Err.Number & "- " & Err.Description, vbCritical + vbOKOnly, "An error has occured"
+GoTo subExit
+End Sub
+
+Private Sub Command112_Click()
+On Error GoTo subError
+Dim xlApp As Excel.Application
+Dim xlBook As Excel.Workbook
+Dim xlSheet As Excel.Worksheet
+Dim xlSheet1 As Excel.Worksheet
+Dim i As Integer
+Dim SQL As String
+Dim SQL1 As String
+Dim SQL2 As String
+Dim SQL3 As String
+Dim j As String
+Dim k As String
+Dim l As Integer
+Dim m As Integer
+Dim r As Integer
+Dim s As Integer
+Dim t As String
+Dim u As String
+Dim rs1 As DAO.Recordset
+Dim rs2 As DAO.Recordset
+Dim rs3 As DAO.Recordset
+Dim rs4 As DAO.Recordset
+DoCmd.Hourglass (True)
+'Data being retreived from query
+'SQL = "SELECT ESC_prime.Escalation_ID, ESC_prime.Account_Name,  ESC_prime.Customer_Name " & _
+'" FROM ESC_prime" & _
+'" Where Esc_prime.Escalation_Status = ""Active""  or  Esc_prime.Escalation_status =  ""monitor"" " & _
+'" ORDER BY ESC_prime.Escalation_ID DESC ;"
+'SQL = "SELECT ESC_prime.Escalation_ID, ESC_prime.Account_Name,  ESC_prime.Customer_Name " & _
+'" FROM ESC_prime" & _
+'"Where Esc_prime.Escalation_ID= 236 ;"
+' " Where Esc_prime.Escalation_Status = ""Active""  or  Esc_prime.Escalation_status =  ""monitor"" " & _
+'" ORDER BY ESC_prime.Escalation_ID DESC ;"
+
+
+'SELECT [Resource Table].Stakeholder_Name, [Resource Table].Designation
+'FROM [Resource Table]
+'WHERE ((([Resource Table].Escalation_ID)=236));
+
+SQL = "SELECT ESC_prime.Escalation_ID, ESC_prime.Account_Name, ESC_prime.[Failure Mode], ESC_prime.Problem_Description, ESC_prime.Failure_Type, " & _
+"ESC_prime.Escalation_Status, ESC_prime.[DropCloth Customer?], ESC_prime.Escalation_Manager, ESC_prime.Current_Update, " & _
+"ESC_prime.At_Risk_Summary, ESC_prime.Escalation_Resolution_Criteria, ESC_prime.Closure_Target_Date, ESC_prime.Region, " & _
+"ESC_prime.Updated_Closure_Target_Date, ESC_prime.Priority, ESC_prime.Customer_Temperature, ESC_prime.[Root_Cause_at _Closure], " & _
+"ESC_prime.CAP, ESC_prime.Date_Escalation_Opened, ESC_prime.Days_Escalation_Open, ESC_prime.Date_Escalation_Put_in_Monitor, " & _
+"ESC_prime.Days_Escalation_Monitor, ESC_prime.Date_Escalation_Closed, ESC_prime.Total_Days, ESC_prime.[Vertical/Horizontal], " & _
+"ESC_prime.[Vertical/Horizontal], ESC_prime.[Product _if_Applicable], ESC_prime.Customer_Name, ESC_prime.Customer_Name, " & _
+"ESC_prime.Customer_Vertical " & _
+" FROM ESC_prime" & _
+" Where Esc_prime.Escalation_Status = ""Active""  or  Esc_prime.Escalation_status =  ""monitor"" " & _
+" ORDER BY ESC_prime.Escalation_ID DESC ;"
+Set rs1 = CurrentDb.OpenRecordset(SQL, dbOpenSnapshot)
+'Set rs2 = CurrentDb.OpenRecordset(SQL1, dbOpenSnapshot)
+If rs1.RecordCount = 0 Then
+MsgBox "No data selected for export", vbInformation + vbOKOnly, "No data exported"
+GoTo subExit
+End If
+' Build the spreadsheet
+Set xlApp = Excel.Application
+xlApp.Visible = False
+Set xlBook = xlApp.Workbooks.add
+Set xlSheet = xlBook.Worksheets(1)
+    xlApp.ActiveSheet.Cells.Select
+     ' does the "autofit" for all columns
+     xlApp.ActiveSheet.Cells.EntireColumn.AutoFit
+     ' selects the first cell to unselect all cells
+     xlSheet.Range("A1").Select
+'MsgBox j, vbOKOnly
+With xlSheet
+.Name = "Open Escalations"
+.Cells.Font.Name = "Calibri"
+.Cells.Font.Size = 11
+'set column widths
+.Columns("A").ColumnWidth = 40
+.Columns("B").ColumnWidth = 20
+.Columns("C").ColumnWidth = 20
+.Columns("D").ColumnWidth = 23
+.Columns("E").ColumnWidth = 20
+.Columns("F").ColumnWidth = 22
+.Columns("G").ColumnWidth = 20
+.Columns("H").ColumnWidth = 20
+.Columns("I").ColumnWidth = 20
+.Columns("J").ColumnWidth = 20
+.Range("A1", "G1").Merge
+.Range("A1").RowHeight = 25
+.Range("A1").Value = "Avaya - Proprietary and Confidential. For Limited Internal Distribution Only. The information contained in this document may not be distributed or reproduced, in whole or in part."
+.Range("A1").Font.Color = vbRed
+.Range("A1").Font.Size = 9
+.Range("A1").Font.Bold = True
+'ApXL.ActiveSheet.Cells.EntireColumn.AutoFit
+
+i = 2
+Do While Not rs1.EOF
+r = i
+.Range("A" & i).Value = "Escalation ID"
+.Range("A" & i).Interior.ColorIndex = 11
+.Range("A" & i).Font.ColorIndex = 2
+.Range("A" & i).Font.Bold = True
+'.Range("A" & i).Interior.Color = Red
+.Range("B" & i, "G" & i).Merge
+.Range("B" & i).HorizontalAlignment = xlCenter
+.Range("B" & i).Value = Nz(rs1!Escalation_ID, "")
+.Range("B" & i).Interior.ColorIndex = 11
+.Range("B" & i).Font.ColorIndex = 2
+.Range("B" & i).Font.Bold = True
+
+j = Nz(rs1("Escalation_ID"))
+k = j
+'MsgBox i
+'MsgBox j, vbOKOnly
+i = i + 1
+.Range("A" & i).Value = "Escalation Name"
+.Range("A" & i).Font.Bold = True
+.Range("B" & i).Value = Nz(rs1!Account_Name, "")
+.Range("B" & i).WrapText = True
+.Range("C" & i).Value = "Customer Name"
+.Range("C" & i).Font.Bold = True
+.Range("D" & i).Value = Nz(rs1!Customer_Name, "")
+.Range("E" & i).Value = "Escalation Status"
+.Range("E" & i).Font.Bold = True
+.Range("F" & i, "G" & i).Merge
+.Range("F" & i).Value = Nz(rs1!Escalation_Status)
+.Range("F" & i).Font.ColorIndex = 41
+.Range("F" & i).Font.Bold = True
+i = i + 1
+'MsgBox i
+.Range("A" & i).Value = "Failure Type"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).HorizontalAlignment = xlLeft
+.Range("A" & i).VerticalAlignment = xlCenter
+.Range("B" & i).Value = Nz(rs1!Failure_Type, "")
+.Range("B" & i).Font.ColorIndex = 41
+.Range("B" & i).Font.Bold = True
+.Range("C" & i).Value = "Failure Mode"
+.Range("C" & i).Font.Bold = True
+.Range("D" & i, "E" & i).Merge
+.Range("D" & i).Value = Nz(rs1![Failure Mode], "")
+.Range("D" & i).Font.ColorIndex = 41
+.Range("D" & i).Font.Bold = True
+.Range("F" & i).Value = "Customer Temperature"
+.Range("F" & i).Font.Bold = True
+.Range("G" & i).Value = Nz(rs1!Customer_Temperature, "")
+
+i = i + 1
+
+.Range("A" & i).Value = "Problem description"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).HorizontalAlignment = xlLeft
+.Range("A" & i).VerticalAlignment = xlCenter
+.Range("B" & i, "G" & i).Merge
+.Range("B" & i).Value = Nz(rs1!Problem_Description)
+.Range("B" & i).WrapText = True
+.Range("B" & i).RowHeight = 75
+.Range("B" & i).HorizontalAlignment = xlLeft
+.Range("B" & i).VerticalAlignment = xlTop
+i = i + 1
+.Range("A" & i).Value = "Drop Cloth Customer?"
+.Range("A" & i).Font.Bold = True
+'.Range("B" & i).Value = Nz(rs1!Escalation_Status)
+.Range("B" & i).Value = Nz(rs1![DropCloth Customer?])
+.Range("C" & i, "D" & i).Merge
+.Range("C" & i).Value = "Customer Vertical"
+.Range("C" & i).Font.Bold = True
+'.Range("E" & i).Value = Nz(rs1![DropCloth Customer?])
+.Range("E" & i).Value = Nz(rs1!Customer_Vertical, "")
+.Range("F" & i).Value = "Priority"
+.Range("F" & i).Font.Bold = True
+.Range("G" & i).Value = Nz(rs1!Priority, "")
+i = i + 1
+.Range("A" & i).Value = "Escalation Manager"
+.Range("A" & i).Font.Bold = True
+.Range("B" & i, "C" & i).Merge
+.Range("B" & i).Value = Nz(rs1!Escalation_Manager, "")
+.Range("D" & i).Value = "Region"
+.Range("D" & i).Font.Bold = True
+.Range("E" & i).Value = Nz(rs1!Region, "")
+.Range("F" & i).Value = "CAP"
+.Range("F" & i).Font.Bold = True
+.Range("G" & i).Value = Nz(rs1!CAP, "")
+i = i + 1
+.Range("A" & i).Value = "Current Update"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).HorizontalAlignment = xlLeft
+.Range("A" & i).VerticalAlignment = xlCenter
+t = PlainText(Nz(rs1!Current_Update, ""))
+'MsgBox t, vbOKOnly
+.Range("B" & i, "G" & i).Merge
+.Range("B" & i).Value = t
+.Range("B" & i).Cells.Font.Color = vbRed
+.Range("A" & i).RowHeight = 200
+.Range("B" & i).HorizontalAlignment = xlLeft
+.Range("B" & i).VerticalAlignment = xlTop
+i = i + 1
+.Range("A" & i).Value = "At Risk Summary"
+.Range("A" & i).WrapText = True
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).RowHeight = 30
+.Range("B" & i, "D" & i).Merge
+.Range("B" & i).Value = Nz(rs1!At_Risk_Summary, "")
+.Range("B" & i).WrapText = True
+.Range("E" & i).Value = "Product if applicable"
+'.Range("D" & i).WrapText = True
+.Range("E" & i).Font.Bold = True
+.Range("F" & i, "G" & i).Merge
+.Range("F" & i).Value = Nz(rs1![Product _if_Applicable], "")
+i = i + 1
+.Range("A" & i).Value = "Escalation resolution criteria"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).WrapText = True
+.Range("A" & i).RowHeight = 30
+.Range("B" & i, "G" & i).Merge
+u = PlainText(Nz(rs1!Escalation_Resolution_Criteria, ""))
+.Range("B" & i).Value = u
+.Range("B" & i).WrapText = True
+'.Range("E" & i).Value = "Customer Vertical"
+'.Range("E" & i).Font.Bold = True
+'.Range("F" & i, "G" & i).Merge
+'.Range("F" & i).Value = Nz(rs1!Customer_Vertical, "")
+i = i + 1
+.Range("B" & i, "C" & i).Merge
+.Range("B" & i).Value = "Stake holder Name"
+.Range("B" & i).Font.Bold = True
+.Range("D" & i).Value = "Role"
+.Range("D" & i).Font.Bold = True
+.Range("E" & i, "F" & i).Merge
+.Range("E" & i).Value = "Stake holder Name"
+.Range("E" & i).Font.Bold = True
+.Range("G" & i).Value = "Role"
+.Range("G" & i).Font.Bold = True
+i = i + 1
+SQL1 = "SELECT [Resource Table].Stakeholder_Name , [Resource Table].Designation " & _
+"FROM [Resource Table] WHERE [Resource Table].Escalation_ID = " & j
+SQL2 = "SELECT Count([Resource Table].Escalation_ID) AS cnt " & _
+"FROM [Resource Table]" & _
+"WHERE [Resource Table].Escalation_ID = " & j
+SQL3 = "SELECT Blocking_Actions.Blocking_Action, Blocking_Actions.Resource_Name1, " & _
+"Blocking_Actions.Resource_Name2, Blocking_Actions.Due_Date, Blocking_Actions.New_Due_Date, " & _
+"Blocking_Actions.Due_Date_Slip_ctr, Blocking_Actions.Status " & _
+"FROM Blocking_Actions" & _
+" WHERE Blocking_Actions.Escalation_ID = " & j
+Set rs3 = CurrentDb.OpenRecordset(SQL2, dbOpenSnapshot)
+l = Nz(rs3("cnt"))
+m = Round(l / 2)
+Dim n As Integer
+n = m + 1
+Dim o As Integer
+o = i + m
+Dim p As Integer
+p = i
+Dim q As Integer
+'MsgBox l, vbOKOnly
+'MsgBox m, vbOKOnly
+Set rs2 = CurrentDb.OpenRecordset(SQL1, dbOpenSnapshot)
+Do While Not rs2.EOF
+.Range("B" & i, "C" & i).Merge
+.Range("B" & i).Value = Nz(rs2!Stakeholder_Name, "")
+.Range("B" & i).WrapText = True
+.Range("D" & i).Value = Nz(rs2!Designation, "")
+.Range("D" & i).WrapText = True
+On Error Resume Next
+rs2.MoveNext
+.Range("E" & i, "F" & i).Merge
+.Range("E" & i).Value = Nz(rs2!Stakeholder_Name, "")
+.Range("E" & i).WrapText = True
+.Range("G" & i).Value = Nz(rs2!Designation, "")
+.Range("G" & i).WrapText = True
+'if there are no records to avoid the error "error number 2147352567 no current record" below line is put in as it would stop and give have baked excel file
+On Error Resume Next
+i = i + 1
+rs2.MoveNext
+Loop
+p = p - 1
+q = i - 1
+.Range("A" & p, "A" & q).Merge
+On Error Resume Next
+.Range("A" & p).VerticalAlignment = xlCenter
+.Range("A" & p).HorizontalAlignment = xlLeft
+.Range("A" & p).Orientation = 0
+.Range("A" & p).Value = "Resources"
+.Range("A" & p).Font.Bold = True
+.Range("A" & p).Cells.AutoFit
+On Error Resume Next
+'ApXL.ActiveSheet.Cells.EntireColumn.AutoFit
+rs2.close
+Set rs2 = Nothing
+.Range("A" & i, "G" & i).Merge
+.Range("A" & i).HorizontalAlignment = xlCenter
+.Range("A" & i).Value = "Blocking Actions"
+.Range("A" & i).Interior.ColorIndex = 15
+.Range("A" & i).Font.ColorIndex = 2
+.Range("A" & i).Font.Bold = True
+i = i + 1
+.Range("A" & i).Value = "Blocking Action"
+.Range("A" & i).Font.Bold = True
+.Range("B" & i, "C" & i).Merge
+.Range("B" & i).Value = "Action Owner"
+'.Range("B" & i).HorizontalAlignment = xlCenter
+.Range("B" & i).Font.Bold = True
+.Range("D" & i).Value = "Due Date"
+.Range("D" & i).Font.Bold = True
+.Range("E" & i).Value = "New Due Date"
+.Range("E" & i).Font.Bold = True
+.Range("F" & i).Value = "Due Date Slip Counter"
+.Range("F" & i).Font.Bold = True
+.Range("G" & i).Value = "Status"
+.Range("G" & i).Font.Bold = True
+i = i + 1
+'MsgBox i, vbOKOnly
+Set rs4 = CurrentDb.OpenRecordset(SQL3, dbOpenSnapshot)
+Do While Not rs4.EOF
+.Range("A" & i).Value = Nz(rs4!Blocking_Action, "")
+.Range("A" & i).WrapText = True
+.Range("B" & i).Value = Nz(rs4!Resource_Name1, "")
+.Range("C" & i).Value = Nz(rs4!Resource_Name2, "")
+.Range("D" & i).Value = Nz(rs4!Due_Date, "")
+.Range("D" & i).NumberFormat = "mm/dd/yyyy"
+.Range("E" & i).Value = Nz(rs4!New_Due_Date, "")
+.Range("E" & i).NumberFormat = "mm/dd/yyyy"
+'//
+.Range("F" & i).Value = Nz(rs4!Due_Date_Slip_ctr, "")
+.Range("F" & i).NumberFormat = 0
+'//
+.Range("G" & i).Value = Nz(rs4!Status, "")
+On Error Resume Next
+i = i + 1
+rs4.MoveNext
+Loop
+rs4.close
+Set rs4 = Nothing
+'i = i + 1
+.Range("A" & i, "C" & i).Merge
+.Range("A" & i).Value = "Escalation Open Date"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).WrapText = True
+.Range("D" & i).Value = Nz(rs1!Date_Escalation_Opened, "")
+.Range("D" & i).NumberFormat = "mm/dd/yyyy"
+.Range("E" & i, "F" & i).Merge
+.Range("E" & i).Value = "Days Escalation in Open Status"
+.Range("E" & i).Font.Bold = True
+'//
+.Range("G" & i).Value = Nz(rs1!Days_Escalation_Open, "")
+.Range("G" & i).NumberFormat = 0
+'//
+.Range("A" & i, "G" & i).Interior.ColorIndex = 19
+i = i + 1
+.Range("A" & i, "C" & i).Merge
+.Range("A" & i).Value = "Closure Target Date"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).WrapText = True
+.Range("D" & i).Value = Nz(rs1!Closure_Target_Date, "")
+.Range("D" & i).NumberFormat = "mm/dd/yyyy"
+.Range("E" & i, "F" & i).Merge
+.Range("E" & i).Value = "Updated Closure Target Date"
+.Range("E" & i).Font.Bold = True
+.Range("G" & i).Value = Nz(rs1!Updated_Closure_Target_Date, "")
+.Range("G" & i).NumberFormat = "mm/dd/yyyy"
+.Range("A" & i, "G" & i).Interior.ColorIndex = 19
+i = i + 1
+.Range("A" & i, "C" & i).Merge
+.Range("A" & i).Value = "Date Escalation Put on Monitor"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).WrapText = True
+'Dim z As Date
+'z = Nz(rs1!Date_Escalation_Put_in_Monitor, "")
+'z = Format(z, shortdate)
+.Range("D" & i).Value = Nz(rs1!Date_Escalation_Put_in_Monitor, "")
+.Range("D" & i).NumberFormat = "mm/dd/yyyy"
+.Range("E" & i, "F" & i).Merge
+.Range("E" & i).Value = "Days Escalation in Monitor Status"
+.Range("E" & i).Font.Bold = True
+'//
+.Range("G" & i).Value = Nz(rs1!Days_Escalation_Monitor, "")
+.Range("G" & i).NumberFormat = 0
+'//
+.Range("A" & i, "G" & i).Interior.ColorIndex = 19
+i = i + 1
+.Range("A" & i, "C" & i).Merge
+.Range("A" & i).Value = "Date Closed"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).WrapText = True
+.Range("D" & i).Value = Nz(rs1!Date_Escalation_Closed, "")
+.Range("D" & i).NumberFormat = "mm/dd/yyyy"
+.Range("E" & i, "F" & i).Merge
+.Range("E" & i).Value = "Total Days"
+.Range("E" & i).Font.Bold = True
+'//
+.Range("G" & i).Value = Nz(rs1!Total_Days, "")
+.Range("G" & i).NumberFormat = 0
+'//
+.Range("A" & i, "G" & i).Interior.ColorIndex = 19
+
+i = i + 1
+
+.Range("A" & i, "G" & i).Merge
+.Range("A" & i).Interior.ColorIndex = 47
+i = i + 1
+'i = i + 2
+s = i - 1
+.Range("A" & r, "G" & s).Borders.LineStyle = xlContinuous
+
+rs1.MoveNext
+Loop
+End With
+On Error Resume Next
+DoCmd.Hourglass False
+
+subExit:
+On Error Resume Next
+DoCmd.Hourglass False
+
+
+rs1.close
+rs3.close
+
+Set rs1 = Nothing
+Set rs3 = Nothing
+
+
+xlApp.Visible = True
+
+Exit Sub
+
+subError:
+MsgBox "Error Number:" & Err.Number & "- " & Err.Description, vbCritical + vbOKOnly, "An error has occured"
+GoTo subExit
+End Sub
+
+Private Sub Command143_Click()
+On Error GoTo subError
+Dim xlApp As Excel.Application
+Dim xlBook As Excel.Workbook
+Dim xlSheet As Excel.Worksheet
+Dim xlSheet1 As Excel.Worksheet
+Dim xlSheet2 As Excel.Worksheet
+Dim i As Integer
+Dim SQL As String
+Dim SQL1 As String
+Dim SQL2 As String
+Dim SQL3 As String
+Dim j As String
+Dim k As String
+Dim l As Integer
+Dim m As Integer
+Dim r As Integer
+Dim s As Integer
+Dim t As String
+Dim u As String
+Dim rs1 As DAO.Recordset
+Dim rs2 As DAO.Recordset
+Dim rs3 As DAO.Recordset
+Dim rs4 As DAO.Recordset
+DoCmd.Hourglass (True)
+'Data being retreived from query
+'SQL = "SELECT ESC_prime.Escalation_ID, ESC_prime.Account_Name,  ESC_prime.Customer_Name " & _
+'" FROM ESC_prime" & _
+'" Where Esc_prime.Escalation_Status = ""Active""  or  Esc_prime.Escalation_status =  ""monitor"" " & _
+'" ORDER BY ESC_prime.Escalation_ID DESC ;"
+'SQL = "SELECT ESC_prime.Escalation_ID, ESC_prime.Account_Name,  ESC_prime.Customer_Name " & _
+'" FROM ESC_prime" & _
+'"Where Esc_prime.Escalation_ID= 236 ;"
+' " Where Esc_prime.Escalation_Status = ""Active""  or  Esc_prime.Escalation_status =  ""monitor"" " & _
+'" ORDER BY ESC_prime.Escalation_ID DESC ;"
+
+
+'SELECT [Resource Table].Stakeholder_Name, [Resource Table].Designation
+'FROM [Resource Table]
+'WHERE ((([Resource Table].Escalation_ID)=236));
+
+
+SQL = "SELECT ESC_prime.Escalation_ID, ESC_prime.Account_Name, ESC_prime.[Failure Mode], ESC_prime.Problem_Description,ESC_prime.Failure_Type, " & _
+"ESC_prime.Escalation_Status, ESC_prime.[DropCloth Customer?], ESC_prime.Escalation_Manager, ESC_prime.Current_Update, " & _
+"ESC_prime.At_Risk_Summary, ESC_prime.Escalation_Resolution_Criteria, ESC_prime.Closure_Target_Date, ESC_prime.Region, " & _
+"ESC_prime.Updated_Closure_Target_Date, ESC_prime.Priority, ESC_prime.Customer_Temperature, ESC_prime.[Root_Cause_at _Closure], " & _
+"ESC_prime.CAP, ESC_prime.Date_Escalation_Opened, ESC_prime.Days_Escalation_Open, ESC_prime.Date_Escalation_Put_in_Monitor, " & _
+"ESC_prime.Days_Escalation_Monitor, ESC_prime.Date_Escalation_Closed, ESC_prime.Total_Days, ESC_prime.[Vertical/Horizontal], " & _
+"ESC_prime.[Vertical/Horizontal], ESC_prime.[Product _if_Applicable], ESC_prime.Customer_Name, ESC_prime.Customer_Name, " & _
+"ESC_prime.Customer_Vertical " & _
+" FROM ESC_prime" & _
+" Where Esc_prime.Escalation_Status = ""Active""  or  Esc_prime.Escalation_status =  ""monitor"" " & _
+" ORDER BY ESC_prime.Escalation_ID DESC ;"
+Set rs1 = CurrentDb.OpenRecordset(SQL, dbOpenSnapshot)
+'Set rs2 = CurrentDb.OpenRecordset(SQL1, dbOpenSnapshot)
+If rs1.RecordCount = 0 Then
+MsgBox "No data selected for export", vbInformation + vbOKOnly, "No data exported"
+GoTo subExit
+End If
+' Build the spreadsheet
+Set xlApp = Excel.Application
+xlApp.Visible = False
+Set xlBook = xlApp.Workbooks.add
+Set xlSheet = xlBook.Worksheets(1)
+    xlApp.ActiveSheet.Cells.Select
+     ' does the "autofit" for all columns
+     xlApp.ActiveSheet.Cells.EntireColumn.AutoFit
+     ' selects the first cell to unselect all cells
+     xlSheet.Range("A1").Select
+'MsgBox j, vbOKOnly
+With xlSheet
+.Name = "Open Escalations"
+.Cells.Font.Name = "Calibri"
+.Cells.Font.Size = 11
+'set column widths
+.Columns("A").ColumnWidth = 40
+.Columns("B").ColumnWidth = 20
+.Columns("C").ColumnWidth = 20
+.Columns("D").ColumnWidth = 23
+.Columns("E").ColumnWidth = 20
+.Columns("F").ColumnWidth = 22
+.Columns("G").ColumnWidth = 20
+.Columns("H").ColumnWidth = 20
+.Columns("I").ColumnWidth = 20
+.Columns("J").ColumnWidth = 20
+.Range("A1", "G1").Merge
+.Range("A1").RowHeight = 25
+.Range("A1").Value = "Avaya - Proprietary and Confidential. For Limited Internal Distribution Only. The information contained in this document may not be distributed or reproduced, in whole or in part."
+.Range("A1").Font.Color = vbRed
+.Range("A1").Font.Size = 9
+.Range("A1").Font.Bold = True
+'ApXL.ActiveSheet.Cells.EntireColumn.AutoFit
+
+i = 2
+Do While Not rs1.EOF
+r = i
+.Range("A" & i).Value = "Escalation ID"
+.Range("A" & i).Interior.ColorIndex = 11
+.Range("A" & i).Font.ColorIndex = 2
+.Range("A" & i).Font.Bold = True
+'.Range("A" & i).Interior.Color = Red
+.Range("B" & i, "G" & i).Merge
+.Range("B" & i).HorizontalAlignment = xlCenter
+.Range("B" & i).Value = Nz(rs1!Escalation_ID, "")
+.Range("B" & i).Interior.ColorIndex = 11
+.Range("B" & i).Font.ColorIndex = 2
+.Range("B" & i).Font.Bold = True
+
+j = Nz(rs1("Escalation_ID"))
+k = j
+'MsgBox j, vbOKOnly
+i = i + 1
+.Range("A" & i).Value = "Escalation Name"
+.Range("A" & i).Font.Bold = True
+.Range("B" & i).Value = Nz(rs1!Account_Name, "")
+.Range("B" & i).WrapText = True
+.Range("C" & i).Value = "Customer Name"
+.Range("C" & i).Font.Bold = True
+.Range("D" & i).Value = Nz(rs1!Customer_Name, "")
+.Range("E" & i).Value = "Escalation Status"
+.Range("E" & i).Font.Bold = True
+.Range("F" & i, "G" & i).Merge
+.Range("F" & i).Value = Nz(rs1!Escalation_Status)
+.Range("F" & i).Font.ColorIndex = 41
+.Range("F" & i).Font.Bold = True
+i = i + 1
+.Range("A" & i).Value = "Failure Type"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).HorizontalAlignment = xlLeft
+.Range("A" & i).VerticalAlignment = xlCenter
+.Range("B" & i).Value = Nz(rs1!Failure_Type, "")
+.Range("B" & i).Font.ColorIndex = 41
+.Range("B" & i).Font.Bold = True
+.Range("C" & i).Value = "Failure Mode"
+.Range("C" & i).Font.Bold = True
+.Range("D" & i, "E" & i).Merge
+.Range("D" & i).Value = Nz(rs1![Failure Mode], "")
+.Range("D" & i).Font.ColorIndex = 41
+.Range("D" & i).Font.Bold = True
+.Range("F" & i).Value = "Customer Temperature"
+.Range("F" & i).Font.Bold = True
+.Range("G" & i).Value = Nz(rs1!Customer_Temperature, "")
+
+i = i + 1
+
+.Range("A" & i).Value = "Problem description"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).HorizontalAlignment = xlLeft
+.Range("A" & i).VerticalAlignment = xlCenter
+.Range("B" & i, "G" & i).Merge
+.Range("B" & i).Value = Nz(rs1!Problem_Description)
+.Range("B" & i).WrapText = True
+.Range("B" & i).RowHeight = 75
+.Range("B" & i).HorizontalAlignment = xlLeft
+.Range("B" & i).VerticalAlignment = xlTop
+i = i + 1
+.Range("A" & i).Value = "Drop Cloth Customer?"
+.Range("A" & i).Font.Bold = True
+.Range("B" & i).Value = Nz(rs1![DropCloth Customer?])
+.Range("C" & i, "D" & i).Merge
+.Range("C" & i).Value = "Customer Vertical"
+.Range("C" & i).Font.Bold = True
+.Range("E" & i).Value = Nz(rs1!Customer_Vertical, "")
+.Range("F" & i).Value = "Priority"
+.Range("F" & i).Font.Bold = True
+.Range("G" & i).Value = Nz(rs1!Priority, "")
+i = i + 1
+.Range("A" & i).Value = "Escalation Manager"
+.Range("A" & i).Font.Bold = True
+.Range("B" & i, "C" & i).Merge
+.Range("B" & i).Value = Nz(rs1!Escalation_Manager, "")
+.Range("D" & i).Value = "Region"
+.Range("D" & i).Font.Bold = True
+.Range("E" & i).Value = Nz(rs1!Region, "")
+.Range("F" & i).Value = "CAP"
+.Range("F" & i).Font.Bold = True
+.Range("G" & i).Value = Nz(rs1!CAP, "")
+i = i + 1
+.Range("A" & i).Value = "Current Update"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).HorizontalAlignment = xlLeft
+.Range("A" & i).VerticalAlignment = xlCenter
+t = PlainText(Nz(rs1!Current_Update, ""))
+'MsgBox t, vbOKOnly
+.Range("B" & i, "G" & i).Merge
+.Range("B" & i).Value = t
+.Range("B" & i).Cells.Font.Color = vbRed
+.Range("A" & i).RowHeight = 200
+.Range("B" & i).HorizontalAlignment = xlLeft
+.Range("B" & i).VerticalAlignment = xlTop
+i = i + 1
+.Range("A" & i).Value = "At Risk Summary"
+.Range("A" & i).WrapText = True
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).RowHeight = 30
+.Range("B" & i, "D" & i).Merge
+.Range("B" & i).Value = Nz(rs1!At_Risk_Summary, "")
+.Range("B" & i).WrapText = True
+.Range("E" & i).Value = "Product if applicable"
+'.Range("D" & i).WrapText = True
+.Range("E" & i).Font.Bold = True
+.Range("F" & i, "G" & i).Merge
+.Range("F" & i).Value = Nz(rs1![Product _if_Applicable], "")
+i = i + 1
+.Range("A" & i).Value = "Escalation resolution criteria"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).WrapText = True
+.Range("A" & i).RowHeight = 30
+.Range("B" & i, "G" & i).Merge
+u = PlainText(Nz(rs1!Escalation_Resolution_Criteria, ""))
+.Range("B" & i).Value = u
+.Range("B" & i).WrapText = True
+i = i + 1
+.Range("B" & i, "C" & i).Merge
+.Range("B" & i).Value = "Stake holder Name"
+.Range("B" & i).Font.Bold = True
+.Range("D" & i).Value = "Role"
+.Range("D" & i).Font.Bold = True
+.Range("E" & i, "F" & i).Merge
+.Range("E" & i).Value = "Stake holder Name"
+.Range("E" & i).Font.Bold = True
+.Range("G" & i).Value = "Role"
+.Range("G" & i).Font.Bold = True
+i = i + 1
+SQL1 = "SELECT [Resource Table].Stakeholder_Name , [Resource Table].Designation " & _
+"FROM [Resource Table] WHERE [Resource Table].Escalation_ID = " & j
+SQL2 = "SELECT Count([Resource Table].Escalation_ID) AS cnt " & _
+"FROM [Resource Table]" & _
+"WHERE [Resource Table].Escalation_ID = " & j
+SQL3 = "SELECT Blocking_Actions.Blocking_Action, Blocking_Actions.Resource_Name1, " & _
+"Blocking_Actions.Resource_Name2, Blocking_Actions.Due_Date, Blocking_Actions.New_Due_Date, " & _
+"Blocking_Actions.Due_Date_Slip_ctr, Blocking_Actions.Status " & _
+"FROM Blocking_Actions" & _
+" WHERE Blocking_Actions.Escalation_ID = " & j
+Set rs3 = CurrentDb.OpenRecordset(SQL2, dbOpenSnapshot)
+l = Nz(rs3("cnt"))
+m = Round(l / 2)
+Dim n As Integer
+n = m + 1
+Dim o As Integer
+o = i + m
+Dim p As Integer
+p = i
+Dim q As Integer
+'MsgBox l, vbOKOnly
+'MsgBox m, vbOKOnly
+Set rs2 = CurrentDb.OpenRecordset(SQL1, dbOpenSnapshot)
+Do While Not rs2.EOF
+.Range("B" & i, "C" & i).Merge
+.Range("B" & i).Value = Nz(rs2!Stakeholder_Name, "")
+.Range("B" & i).WrapText = True
+.Range("D" & i).Value = Nz(rs2!Designation, "")
+.Range("D" & i).WrapText = True
+On Error Resume Next
+rs2.MoveNext
+.Range("E" & i, "F" & i).Merge
+.Range("E" & i).Value = Nz(rs2!Stakeholder_Name, "")
+.Range("E" & i).WrapText = True
+.Range("G" & i).Value = Nz(rs2!Designation, "")
+.Range("G" & i).WrapText = True
+'if there are no records to avoid the error "error number 2147352567 no current record" below line is put in as it would stop and give have baked excel file
+On Error Resume Next
+i = i + 1
+rs2.MoveNext
+Loop
+p = p - 1
+q = i - 1
+.Range("A" & p, "A" & q).Merge
+On Error Resume Next
+.Range("A" & p).VerticalAlignment = xlCenter
+.Range("A" & p).HorizontalAlignment = xlLeft
+.Range("A" & p).Orientation = 0
+.Range("A" & p).Value = "Resources"
+.Range("A" & p).Font.Bold = True
+.Range("A" & p).Cells.AutoFit
+On Error Resume Next
+'ApXL.ActiveSheet.Cells.EntireColumn.AutoFit
+rs2.close
+Set rs2 = Nothing
+.Range("A" & i, "G" & i).Merge
+.Range("A" & i).HorizontalAlignment = xlCenter
+.Range("A" & i).Value = "Blocking Actions"
+.Range("A" & i).Interior.ColorIndex = 15
+.Range("A" & i).Font.ColorIndex = 2
+.Range("A" & i).Font.Bold = True
+i = i + 1
+.Range("A" & i).Value = "Blocking Action"
+.Range("A" & i).Font.Bold = True
+.Range("B" & i, "C" & i).Merge
+.Range("B" & i).Value = "Action Owner"
+'.Range("B" & i).HorizontalAlignment = xlCenter
+.Range("B" & i).Font.Bold = True
+.Range("D" & i).Value = "Due Date"
+.Range("D" & i).Font.Bold = True
+.Range("E" & i).Value = "New Due Date"
+.Range("E" & i).Font.Bold = True
+.Range("F" & i).Value = "Due Date Slip Counter"
+.Range("F" & i).Font.Bold = True
+.Range("G" & i).Value = "Status"
+.Range("G" & i).Font.Bold = True
+i = i + 1
+'MsgBox i, vbOKOnly
+Set rs4 = CurrentDb.OpenRecordset(SQL3, dbOpenSnapshot)
+Do While Not rs4.EOF
+.Range("A" & i).Value = Nz(rs4!Blocking_Action, "")
+.Range("A" & i).WrapText = True
+.Range("B" & i).Value = Nz(rs4!Resource_Name1, "")
+.Range("C" & i).Value = Nz(rs4!Resource_Name2, "")
+.Range("D" & i).Value = Nz(rs4!Due_Date, "")
+.Range("D" & i).NumberFormat = "mm/dd/yyyy"
+.Range("E" & i).Value = Nz(rs4!New_Due_Date, "")
+.Range("E" & i).NumberFormat = "mm/dd/yyyy"
+'//
+.Range("F" & i).Value = Nz(rs4!Due_Date_Slip_ctr, "")
+.Range("F" & i).NumberFormat = 0
+'//
+.Range("G" & i).Value = Nz(rs4!Status, "")
+On Error Resume Next
+i = i + 1
+rs4.MoveNext
+Loop
+rs4.close
+Set rs4 = Nothing
+'i = i + 1
+.Range("A" & i, "C" & i).Merge
+.Range("A" & i).Value = "Escalation Open Date"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).WrapText = True
+.Range("D" & i).Value = Nz(rs1!Date_Escalation_Opened, "")
+.Range("D" & i).NumberFormat = "mm/dd/yyyy"
+.Range("E" & i, "F" & i).Merge
+.Range("E" & i).Value = "Days Escalation in Open Status"
+.Range("E" & i).Font.Bold = True
+'//
+.Range("G" & i).Value = Nz(rs1!Days_Escalation_Open, "")
+.Range("G" & i).NumberFormat = 0
+'//
+.Range("A" & i, "G" & i).Interior.ColorIndex = 19
+i = i + 1
+.Range("A" & i, "C" & i).Merge
+.Range("A" & i).Value = "Closure Target Date"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).WrapText = True
+.Range("D" & i).Value = Nz(rs1!Closure_Target_Date, "")
+.Range("D" & i).NumberFormat = "mm/dd/yyyy"
+.Range("E" & i, "F" & i).Merge
+.Range("E" & i).Value = "Updated Closure Target Date"
+.Range("E" & i).Font.Bold = True
+.Range("G" & i).Value = Nz(rs1!Updated_Closure_Target_Date, "")
+.Range("G" & i).NumberFormat = "mm/dd/yyyy"
+.Range("A" & i, "G" & i).Interior.ColorIndex = 19
+i = i + 1
+.Range("A" & i, "C" & i).Merge
+.Range("A" & i).Value = "Date Escalation Put on Monitor"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).WrapText = True
+'Dim z As Date
+'z = Nz(rs1!Date_Escalation_Put_in_Monitor, "")
+'z = Format(z, shortdate)
+.Range("D" & i).Value = Nz(rs1!Date_Escalation_Put_in_Monitor, "")
+.Range("D" & i).NumberFormat = "mm/dd/yyyy"
+.Range("E" & i, "F" & i).Merge
+.Range("E" & i).Value = "Days Escalation in Monitor Status"
+.Range("E" & i).Font.Bold = True
+'//
+.Range("G" & i).Value = Nz(rs1!Days_Escalation_Monitor, "")
+.Range("G" & i).NumberFormat = 0
+'//
+.Range("A" & i, "G" & i).Interior.ColorIndex = 19
+i = i + 1
+.Range("A" & i, "C" & i).Merge
+.Range("A" & i).Value = "Date Closed"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).WrapText = True
+.Range("D" & i).Value = Nz(rs1!Date_Escalation_Closed, "")
+.Range("D" & i).NumberFormat = "mm/dd/yyyy"
+.Range("E" & i, "F" & i).Merge
+.Range("E" & i).Value = "Total Days"
+.Range("E" & i).Font.Bold = True
+'//
+.Range("G" & i).Value = Nz(rs1!Total_Days, "")
+.Range("G" & i).NumberFormat = 0
+'//
+.Range("A" & i, "G" & i).Interior.ColorIndex = 19
+
+i = i + 1
+
+.Range("A" & i, "G" & i).Merge
+.Range("A" & i).Interior.ColorIndex = 47
+i = i + 1
+'i = i + 2
+s = i - 1
+.Range("A" & r, "G" & s).Borders.LineStyle = xlContinuous
+
+rs1.MoveNext
+Loop
+End With
+'xlSheet.Range("A2").Select
+'xlSheet.Range(A2, G2).Merge
+'xlSheet.Range(A2).Value = "Avaya - Proprietary and Confidential. For Limited Internal Distribution Only. The information contained in this document may not be distributed or reproduced, in whole or in part. "
+'xlSheet.Range(A2).Font.Color = vbRed
+'xlSheet.Range(A2).Font.Bold = True
+'xlSheet.Range(A2).WrapText = True
+'subExit:
+On Error Resume Next
+DoCmd.Hourglass False
+
+
+rs1.close
+'rs2.close
+rs3.close
+
+Set rs1 = Nothing
+Set rs3 = Nothing
+
+'// code for closed escalation
+SQL = "SELECT ESC_prime.Escalation_ID, ESC_prime.Account_Name, ESC_prime.[Failure Mode], ESC_prime.Problem_Description,ESC_prime.Failure_Type, " & _
+"ESC_prime.Escalation_Status, ESC_prime.[DropCloth Customer?], ESC_prime.Escalation_Manager, ESC_prime.Current_Update, " & _
+"ESC_prime.At_Risk_Summary, ESC_prime.Escalation_Resolution_Criteria, ESC_prime.Closure_Target_Date, ESC_prime.Region, " & _
+"ESC_prime.Updated_Closure_Target_Date, ESC_prime.Priority, ESC_prime.Customer_Temperature, ESC_prime.[Root_Cause_at _Closure], " & _
+"ESC_prime.CAP, ESC_prime.Date_Escalation_Opened, ESC_prime.Days_Escalation_Open, ESC_prime.Date_Escalation_Put_in_Monitor, " & _
+"ESC_prime.Days_Escalation_Monitor, ESC_prime.Date_Escalation_Closed, ESC_prime.Total_Days, ESC_prime.[Vertical/Horizontal], " & _
+"ESC_prime.[Vertical/Horizontal], ESC_prime.[Product _if_Applicable], ESC_prime.Customer_Name, ESC_prime.Customer_Name, " & _
+"ESC_prime.Customer_Vertical " & _
+" FROM ESC_prime" & _
+" Where Esc_prime.Escalation_Status = ""Closed"" " & _
+" ORDER BY ESC_prime.Escalation_ID DESC ;"
+Set rs1 = CurrentDb.OpenRecordset(SQL, dbOpenSnapshot)
+'Set rs2 = CurrentDb.OpenRecordset(SQL1, dbOpenSnapshot)
+If rs1.RecordCount = 0 Then
+MsgBox "No data selected for export", vbInformation + vbOKOnly, "No data exported"
+GoTo subExit
+End If
+
+
+Set xlSheet1 = xlBook.Worksheets.add
+xlApp.ActiveSheet.Cells.Select
+     ' does the "autofit" for all columns
+     xlApp.ActiveSheet.Cells.EntireColumn.AutoFit
+     ' selects the first cell to unselect all cells
+     xlSheet1.Range("A1").Select
+'MsgBox j, vbOKOnly
+With xlSheet1
+.Name = "Closed Escalations"
+.Cells.Font.Name = "Calibri"
+.Cells.Font.Size = 11
+'set column widths
+.Columns("A").ColumnWidth = 40
+.Columns("B").ColumnWidth = 20
+.Columns("C").ColumnWidth = 20
+.Columns("D").ColumnWidth = 23
+.Columns("E").ColumnWidth = 20
+.Columns("F").ColumnWidth = 22
+.Columns("G").ColumnWidth = 20
+.Columns("H").ColumnWidth = 20
+.Columns("I").ColumnWidth = 20
+.Columns("J").ColumnWidth = 20
+.Range("A1", "G1").Merge
+.Range("A1").RowHeight = 25
+.Range("A1").Value = "Avaya - Proprietary and Confidential. For Limited Internal Distribution Only. The information contained in this document may not be distributed or reproduced, in whole or in part."
+.Range("A1").Font.Color = vbRed
+.Range("A1").Font.Size = 9
+.Range("A1").Font.Bold = True
+'ApXL.ActiveSheet.Cells.EntireColumn.AutoFit
+
+i = 2
+Do While Not rs1.EOF
+r = i
+.Range("A" & i).Value = "Escalation ID"
+.Range("A" & i).Interior.ColorIndex = 11
+.Range("A" & i).Font.ColorIndex = 2
+.Range("A" & i).Font.Bold = True
+'.Range("A" & i).Interior.Color = Red
+.Range("B" & i, "G" & i).Merge
+.Range("B" & i).HorizontalAlignment = xlCenter
+.Range("B" & i).Value = Nz(rs1!Escalation_ID, "")
+.Range("B" & i).Interior.ColorIndex = 11
+.Range("B" & i).Font.ColorIndex = 2
+.Range("B" & i).Font.Bold = True
+
+j = Nz(rs1("Escalation_ID"))
+k = j
+'MsgBox j, vbOKOnly
+i = i + 1
+.Range("A" & i).Value = "Escalation Name"
+.Range("A" & i).Font.Bold = True
+.Range("B" & i).Value = Nz(rs1!Account_Name, "")
+.Range("B" & i).WrapText = True
+.Range("C" & i).Value = "Customer Name"
+.Range("C" & i).Font.Bold = True
+.Range("D" & i).Value = Nz(rs1!Customer_Name, "")
+.Range("E" & i).Value = "Escalation Status"
+.Range("E" & i).Font.Bold = True
+.Range("F" & i, "G" & i).Merge
+.Range("F" & i).Value = Nz(rs1!Escalation_Status)
+.Range("F" & i).Font.ColorIndex = 41
+.Range("F" & i).Font.Bold = True
+i = i + 1
+.Range("A" & i).Value = "Failure Type"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).HorizontalAlignment = xlLeft
+.Range("A" & i).VerticalAlignment = xlCenter
+.Range("B" & i).Value = Nz(rs1!Failure_Type, "")
+.Range("B" & i).Font.ColorIndex = 41
+.Range("B" & i).Font.Bold = True
+.Range("C" & i).Value = "Failure Mode"
+.Range("C" & i).Font.Bold = True
+.Range("D" & i, "E" & i).Merge
+.Range("D" & i).Value = Nz(rs1![Failure Mode], "")
+.Range("D" & i).Font.ColorIndex = 41
+.Range("D" & i).Font.Bold = True
+.Range("F" & i).Value = "Customer Temperature"
+.Range("F" & i).Font.Bold = True
+.Range("G" & i).Value = Nz(rs1!Customer_Temperature, "")
+
+i = i + 1
+
+.Range("A" & i).Value = "Problem description"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).HorizontalAlignment = xlLeft
+.Range("A" & i).VerticalAlignment = xlCenter
+.Range("B" & i, "G" & i).Merge
+.Range("B" & i).Value = Nz(rs1!Problem_Description)
+.Range("B" & i).WrapText = True
+.Range("B" & i).RowHeight = 75
+.Range("B" & i).HorizontalAlignment = xlLeft
+.Range("B" & i).VerticalAlignment = xlTop
+i = i + 1
+.Range("A" & i).Value = "Drop Cloth Customer?"
+.Range("A" & i).Font.Bold = True
+.Range("B" & i).Value = Nz(rs1![DropCloth Customer?])
+.Range("C" & i, "D" & i).Merge
+.Range("C" & i).Value = "Customer Vertical"
+.Range("C" & i).Font.Bold = True
+.Range("E" & i).Value = Nz(rs1!Customer_Vertical, "")
+.Range("F" & i).Value = "Priority"
+.Range("F" & i).Font.Bold = True
+.Range("G" & i).Value = Nz(rs1!Priority, "")
+i = i + 1
+.Range("A" & i).Value = "Escalation Manager"
+.Range("A" & i).Font.Bold = True
+.Range("B" & i, "C" & i).Merge
+.Range("B" & i).Value = Nz(rs1!Escalation_Manager, "")
+.Range("D" & i).Value = "Region"
+.Range("D" & i).Font.Bold = True
+.Range("E" & i).Value = Nz(rs1!Region, "")
+.Range("F" & i).Value = "CAP"
+.Range("F" & i).Font.Bold = True
+.Range("G" & i).Value = Nz(rs1!CAP, "")
+i = i + 1
+.Range("A" & i).Value = "Final Update"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).HorizontalAlignment = xlLeft
+.Range("A" & i).VerticalAlignment = xlCenter
+t = PlainText(Nz(rs1!Current_Update, ""))
+'MsgBox t, vbOKOnly
+.Range("B" & i, "G" & i).Merge
+.Range("B" & i).Value = t
+.Range("B" & i).Cells.Font.Color = vbRed
+.Range("A" & i).RowHeight = 200
+.Range("B" & i).HorizontalAlignment = xlLeft
+.Range("B" & i).VerticalAlignment = xlTop
+i = i + 1
+.Range("A" & i).Value = "At Risk Summary"
+.Range("A" & i).WrapText = True
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).RowHeight = 30
+.Range("B" & i, "D" & i).Merge
+.Range("B" & i).Value = Nz(rs1!At_Risk_Summary, "")
+.Range("B" & i).WrapText = True
+.Range("E" & i).Value = "Product if applicable"
+'.Range("D" & i).WrapText = True
+.Range("E" & i).Font.Bold = True
+.Range("F" & i, "G" & i).Merge
+.Range("F" & i).Value = Nz(rs1![Product _if_Applicable], "")
+i = i + 1
+.Range("A" & i).Value = "Escalation resolution criteria"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).WrapText = True
+.Range("A" & i).RowHeight = 30
+.Range("B" & i, "G" & i).Merge
+u = PlainText(Nz(rs1!Escalation_Resolution_Criteria, ""))
+.Range("B" & i).Value = u
+.Range("B" & i).WrapText = True
+i = i + 1
+.Range("B" & i, "C" & i).Merge
+.Range("B" & i).Value = "Stake holder Name"
+.Range("B" & i).Font.Bold = True
+.Range("D" & i).Value = "Role"
+.Range("D" & i).Font.Bold = True
+.Range("E" & i, "F" & i).Merge
+.Range("E" & i).Value = "Stake holder Name"
+.Range("E" & i).Font.Bold = True
+.Range("G" & i).Value = "Role"
+.Range("G" & i).Font.Bold = True
+i = i + 1
+SQL1 = "SELECT [Resource Table].Stakeholder_Name , [Resource Table].Designation " & _
+"FROM [Resource Table] WHERE [Resource Table].Escalation_ID = " & j
+SQL2 = "SELECT Count([Resource Table].Escalation_ID) AS cnt " & _
+"FROM [Resource Table]" & _
+"WHERE [Resource Table].Escalation_ID = " & j
+SQL3 = "SELECT Blocking_Actions.Blocking_Action, Blocking_Actions.Resource_Name1, " & _
+"Blocking_Actions.Resource_Name2, Blocking_Actions.Due_Date, Blocking_Actions.New_Due_Date, " & _
+"Blocking_Actions.Due_Date_Slip_ctr, Blocking_Actions.Status " & _
+"FROM Blocking_Actions" & _
+" WHERE Blocking_Actions.Escalation_ID = " & j
+Set rs3 = CurrentDb.OpenRecordset(SQL2, dbOpenSnapshot)
+l = Nz(rs3("cnt"))
+m = Round(l / 2)
+Dim n1 As Integer
+n1 = m + 1
+Dim o1 As Integer
+o1 = i + m
+Dim p1 As Integer
+p1 = i
+Dim q1 As Integer
+'MsgBox l, vbOKOnly
+'MsgBox m, vbOKOnly
+Set rs2 = CurrentDb.OpenRecordset(SQL1, dbOpenSnapshot)
+Do While Not rs2.EOF
+.Range("B" & i, "C" & i).Merge
+.Range("B" & i).Value = Nz(rs2!Stakeholder_Name, "")
+.Range("B" & i).WrapText = True
+.Range("D" & i).Value = Nz(rs2!Designation, "")
+.Range("D" & i).WrapText = True
+On Error Resume Next
+rs2.MoveNext
+.Range("E" & i, "F" & i).Merge
+.Range("E" & i).Value = Nz(rs2!Stakeholder_Name, "")
+.Range("E" & i).WrapText = True
+.Range("G" & i).Value = Nz(rs2!Designation, "")
+.Range("G" & i).WrapText = True
+'if there are no records to avoid the error "error number 2147352567 no current record" below line is put in as it would stop and give have baked excel file
+On Error Resume Next
+i = i + 1
+rs2.MoveNext
+Loop
+p1 = p1 - 1
+q1 = i - 1
+.Range("A" & p1, "A" & q1).Merge
+On Error Resume Next
+.Range("A" & p1).VerticalAlignment = xlCenter
+.Range("A" & p1).HorizontalAlignment = xlLeft
+.Range("A" & p1).Orientation = 0
+.Range("A" & p1).Value = "Resources"
+.Range("A" & p1).Font.Bold = True
+.Range("A" & p1).Cells.AutoFit
+On Error Resume Next
+'ApXL.ActiveSheet.Cells.EntireColumn.AutoFit
+rs2.close
+Set rs2 = Nothing
+.Range("A" & i, "G" & i).Merge
+.Range("A" & i).HorizontalAlignment = xlCenter
+.Range("A" & i).Value = "Blocking Actions"
+.Range("A" & i).Interior.ColorIndex = 15
+.Range("A" & i).Font.ColorIndex = 2
+.Range("A" & i).Font.Bold = True
+i = i + 1
+.Range("A" & i).Value = "Blocking Action"
+.Range("A" & i).Font.Bold = True
+.Range("B" & i, "C" & i).Merge
+.Range("B" & i).Value = "Action Owner"
+'.Range("B" & i).HorizontalAlignment = xlCenter
+.Range("B" & i).Font.Bold = True
+.Range("D" & i).Value = "Due Date"
+.Range("D" & i).Font.Bold = True
+.Range("E" & i).Value = "New Due Date"
+.Range("E" & i).Font.Bold = True
+.Range("F" & i).Value = "Due Date Slip Counter"
+.Range("F" & i).Font.Bold = True
+.Range("G" & i).Value = "Status"
+.Range("G" & i).Font.Bold = True
+i = i + 1
+'MsgBox i, vbOKOnly
+Set rs4 = CurrentDb.OpenRecordset(SQL3, dbOpenSnapshot)
+Do While Not rs4.EOF
+.Range("A" & i).Value = Nz(rs4!Blocking_Action, "")
+.Range("A" & i).WrapText = True
+.Range("B" & i).Value = Nz(rs4!Resource_Name1, "")
+.Range("C" & i).Value = Nz(rs4!Resource_Name2, "")
+.Range("D" & i).Value = Nz(rs4!Due_Date, "")
+.Range("D" & i).NumberFormat = "mm/dd/yyyy"
+.Range("E" & i).Value = Nz(rs4!New_Due_Date, "")
+.Range("E" & i).NumberFormat = "mm/dd/yyyy"
+'//
+.Range("F" & i).Value = Nz(rs4!Due_Date_Slip_ctr, "")
+.Range("F" & i).NumberFormat = 0
+'//
+.Range("G" & i).Value = Nz(rs4!Status, "")
+On Error Resume Next
+i = i + 1
+rs4.MoveNext
+Loop
+rs4.close
+Set rs4 = Nothing
+'i = i + 1
+.Range("A" & i, "C" & i).Merge
+.Range("A" & i).Value = "Escalation Open Date"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).WrapText = True
+.Range("D" & i).Value = Nz(rs1!Date_Escalation_Opened, "")
+.Range("D" & i).NumberFormat = "mm/dd/yyyy"
+.Range("E" & i, "F" & i).Merge
+.Range("E" & i).Value = "Days Escalation in Open Status"
+.Range("E" & i).Font.Bold = True
+'//
+.Range("G" & i).Value = Nz(rs1!Days_Escalation_Open, "")
+.Range("G" & i).NumberFormat = 0
+'//
+.Range("A" & i, "G" & i).Interior.ColorIndex = 19
+i = i + 1
+.Range("A" & i, "C" & i).Merge
+.Range("A" & i).Value = "Closure Target Date"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).WrapText = True
+.Range("D" & i).Value = Nz(rs1!Closure_Target_Date, "")
+.Range("D" & i).NumberFormat = "mm/dd/yyyy"
+.Range("E" & i, "F" & i).Merge
+.Range("E" & i).Value = "Updated Closure Target Date"
+.Range("E" & i).Font.Bold = True
+.Range("G" & i).Value = Nz(rs1!Updated_Closure_Target_Date, "")
+.Range("G" & i).NumberFormat = "mm/dd/yyyy"
+.Range("A" & i, "G" & i).Interior.ColorIndex = 19
+i = i + 1
+.Range("A" & i, "C" & i).Merge
+.Range("A" & i).Value = "Date Escalation Put on Monitor"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).WrapText = True
+'Dim z As Date
+'z = Nz(rs1!Date_Escalation_Put_in_Monitor, "")
+'z = Format(z, shortdate)
+.Range("D" & i).Value = Nz(rs1!Date_Escalation_Put_in_Monitor, "")
+.Range("D" & i).NumberFormat = "mm/dd/yyyy"
+.Range("E" & i, "F" & i).Merge
+.Range("E" & i).Value = "Days Escalation in Monitor Status"
+.Range("E" & i).Font.Bold = True
+'//
+.Range("G" & i).Value = Nz(rs1!Days_Escalation_Monitor, "")
+.Range("G" & i).NumberFormat = 0
+'//
+.Range("A" & i, "G" & i).Interior.ColorIndex = 19
+i = i + 1
+.Range("A" & i, "C" & i).Merge
+.Range("A" & i).Value = "Date Closed"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).WrapText = True
+.Range("D" & i).Value = Nz(rs1!Date_Escalation_Closed, "")
+.Range("D" & i).NumberFormat = "mm/dd/yyyy"
+.Range("E" & i, "F" & i).Merge
+.Range("E" & i).Value = "Total Days"
+.Range("E" & i).Font.Bold = True
+'//
+.Range("G" & i).Value = Nz(rs1!Total_Days, "")
+.Range("G" & i).NumberFormat = 0
+'//
+.Range("A" & i, "G" & i).Interior.ColorIndex = 19
+
+i = i + 1
+
+.Range("A" & i, "G" & i).Merge
+.Range("A" & i).Interior.ColorIndex = 47
+i = i + 1
+'i = i + 2
+s = i - 1
+.Range("A" & r, "G" & s).Borders.LineStyle = xlContinuous
+
+rs1.MoveNext
+Loop
+End With
+'xlSheet.Range("A2").Select
+'xlSheet.Range(A2, G2).Merge
+'xlSheet.Range(A2).Value = "Avaya - Proprietary and Confidential. For Limited Internal Distribution Only. The information contained in this document may not be distributed or reproduced, in whole or in part. "
+'xlSheet.Range(A2).Font.Color = vbRed
+'xlSheet.Range(A2).Font.Bold = True
+'xlSheet.Range(A2).WrapText = True
+'subExit:
+On Error Resume Next
+DoCmd.Hourglass False
+
+
+rs1.close
+'rs2.close
+rs3.close
+
+Set rs1 = Nothing
+Set rs3 = Nothing
+
+'// Cancelled Escalation Code
+
+SQL = "SELECT ESC_prime.Escalation_ID, ESC_prime.Account_Name, ESC_prime.[Failure Mode], ESC_prime.Problem_Description,ESC_prime.Failure_Type, " & _
+"ESC_prime.Escalation_Status, ESC_prime.[DropCloth Customer?], ESC_prime.Escalation_Manager, ESC_prime.Current_Update, " & _
+"ESC_prime.At_Risk_Summary, ESC_prime.Escalation_Resolution_Criteria, ESC_prime.Closure_Target_Date, ESC_prime.Region, " & _
+"ESC_prime.Updated_Closure_Target_Date, ESC_prime.Priority, ESC_prime.Customer_Temperature, ESC_prime.[Root_Cause_at _Closure], " & _
+"ESC_prime.CAP, ESC_prime.Date_Escalation_Opened, ESC_prime.Days_Escalation_Open, ESC_prime.Date_Escalation_Put_in_Monitor, " & _
+"ESC_prime.Days_Escalation_Monitor, ESC_prime.Date_Escalation_Closed, ESC_prime.Total_Days, ESC_prime.[Vertical/Horizontal], " & _
+"ESC_prime.[Vertical/Horizontal], ESC_prime.[Product _if_Applicable], ESC_prime.Customer_Name, ESC_prime.Customer_Name, " & _
+"ESC_prime.Customer_Vertical " & _
+" FROM ESC_prime" & _
+" Where Esc_prime.Escalation_Status = ""Cancelled"" " & _
+" ORDER BY ESC_prime.Escalation_ID DESC ;"
+Set rs1 = CurrentDb.OpenRecordset(SQL, dbOpenSnapshot)
+'Set rs2 = CurrentDb.OpenRecordset(SQL1, dbOpenSnapshot)
+If rs1.RecordCount = 0 Then
+MsgBox "No data selected for export", vbInformation + vbOKOnly, "No data exported"
+GoTo subExit
+End If
+
+
+Set xlSheet2 = xlBook.Worksheets.add
+xlApp.ActiveSheet.Cells.Select
+     ' does the "autofit" for all columns
+     xlApp.ActiveSheet.Cells.EntireColumn.AutoFit
+     ' selects the first cell to unselect all cells
+     xlSheet2.Range("A1").Select
+'MsgBox j, vbOKOnly
+With xlSheet2
+.Name = "Cancelled Escalations"
+.Cells.Font.Name = "Calibri"
+.Cells.Font.Size = 11
+'set column widths
+.Columns("A").ColumnWidth = 40
+.Columns("B").ColumnWidth = 20
+.Columns("C").ColumnWidth = 20
+.Columns("D").ColumnWidth = 23
+.Columns("E").ColumnWidth = 20
+.Columns("F").ColumnWidth = 22
+.Columns("G").ColumnWidth = 20
+.Columns("H").ColumnWidth = 20
+.Columns("I").ColumnWidth = 20
+.Columns("J").ColumnWidth = 20
+.Range("A1", "G1").Merge
+.Range("A1").RowHeight = 25
+.Range("A1").Value = "Avaya - Proprietary and Confidential. For Limited Internal Distribution Only. The information contained in this document may not be distributed or reproduced, in whole or in part."
+.Range("A1").Font.Color = vbRed
+.Range("A1").Font.Size = 9
+.Range("A1").Font.Bold = True
+'ApXL.ActiveSheet.Cells.EntireColumn.AutoFit
+
+i = 2
+Do While Not rs1.EOF
+r = i
+.Range("A" & i).Value = "Escalation ID"
+.Range("A" & i).Interior.ColorIndex = 11
+.Range("A" & i).Font.ColorIndex = 2
+.Range("A" & i).Font.Bold = True
+'.Range("A" & i).Interior.Color = Red
+.Range("B" & i, "G" & i).Merge
+.Range("B" & i).HorizontalAlignment = xlCenter
+.Range("B" & i).Value = Nz(rs1!Escalation_ID, "")
+.Range("B" & i).Interior.ColorIndex = 11
+.Range("B" & i).Font.ColorIndex = 2
+.Range("B" & i).Font.Bold = True
+
+j = Nz(rs1("Escalation_ID"))
+k = j
+'MsgBox j, vbOKOnly
+i = i + 1
+.Range("A" & i).Value = "Escalation Name"
+.Range("A" & i).Font.Bold = True
+.Range("B" & i).Value = Nz(rs1!Account_Name, "")
+.Range("B" & i).WrapText = True
+.Range("C" & i).Value = "Customer Name"
+.Range("C" & i).Font.Bold = True
+.Range("D" & i).Value = Nz(rs1!Customer_Name, "")
+.Range("E" & i).Value = "Escalation Status"
+.Range("E" & i).Font.Bold = True
+.Range("F" & i, "G" & i).Merge
+.Range("F" & i).Value = Nz(rs1!Escalation_Status)
+.Range("F" & i).Font.ColorIndex = 41
+.Range("F" & i).Font.Bold = True
+i = i + 1
+.Range("A" & i).Value = "Failure Type"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).HorizontalAlignment = xlLeft
+.Range("A" & i).VerticalAlignment = xlCenter
+.Range("B" & i).Value = Nz(rs1!Failure_Type, "")
+.Range("B" & i).Font.ColorIndex = 41
+.Range("B" & i).Font.Bold = True
+.Range("C" & i).Value = "Failure Mode"
+.Range("C" & i).Font.Bold = True
+.Range("D" & i, "E" & i).Merge
+.Range("D" & i).Value = Nz(rs1![Failure Mode], "")
+.Range("D" & i).Font.ColorIndex = 41
+.Range("D" & i).Font.Bold = True
+.Range("F" & i).Value = "Customer Temperature"
+.Range("F" & i).Font.Bold = True
+.Range("G" & i).Value = Nz(rs1!Customer_Temperature, "")
+
+i = i + 1
+
+.Range("A" & i).Value = "Problem description"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).HorizontalAlignment = xlLeft
+.Range("A" & i).VerticalAlignment = xlCenter
+.Range("B" & i, "G" & i).Merge
+.Range("B" & i).Value = Nz(rs1!Problem_Description)
+.Range("B" & i).WrapText = True
+.Range("B" & i).RowHeight = 75
+.Range("B" & i).HorizontalAlignment = xlLeft
+.Range("B" & i).VerticalAlignment = xlTop
+i = i + 1
+.Range("A" & i).Value = "Drop Cloth Customer?"
+.Range("A" & i).Font.Bold = True
+.Range("B" & i).Value = Nz(rs1![DropCloth Customer?])
+.Range("C" & i, "D" & i).Merge
+.Range("C" & i).Value = "Customer Vertical"
+.Range("C" & i).Font.Bold = True
+.Range("E" & i).Value = Nz(rs1!Customer_Vertical, "")
+.Range("F" & i).Value = "Priority"
+.Range("F" & i).Font.Bold = True
+.Range("G" & i).Value = Nz(rs1!Priority, "")
+i = i + 1
+.Range("A" & i).Value = "Escalation Manager"
+.Range("A" & i).Font.Bold = True
+.Range("B" & i, "C" & i).Merge
+.Range("B" & i).Value = Nz(rs1!Escalation_Manager, "")
+.Range("D" & i).Value = "Region"
+.Range("D" & i).Font.Bold = True
+.Range("E" & i).Value = Nz(rs1!Region, "")
+.Range("F" & i).Value = "CAP"
+.Range("F" & i).Font.Bold = True
+.Range("G" & i).Value = Nz(rs1!CAP, "")
+i = i + 1
+.Range("A" & i).Value = "Last Update"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).HorizontalAlignment = xlLeft
+.Range("A" & i).VerticalAlignment = xlCenter
+t = PlainText(Nz(rs1!Current_Update, ""))
+'MsgBox t, vbOKOnly
+.Range("B" & i, "G" & i).Merge
+.Range("B" & i).Value = t
+.Range("B" & i).Cells.Font.Color = vbRed
+.Range("A" & i).RowHeight = 200
+.Range("B" & i).HorizontalAlignment = xlLeft
+.Range("B" & i).VerticalAlignment = xlTop
+i = i + 1
+.Range("A" & i).Value = "At Risk Summary"
+.Range("A" & i).WrapText = True
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).RowHeight = 30
+.Range("B" & i, "D" & i).Merge
+.Range("B" & i).Value = Nz(rs1!At_Risk_Summary, "")
+.Range("B" & i).WrapText = True
+.Range("E" & i).Value = "Product if applicable"
+'.Range("D" & i).WrapText = True
+.Range("E" & i).Font.Bold = True
+.Range("F" & i, "G" & i).Merge
+.Range("F" & i).Value = Nz(rs1![Product _if_Applicable], "")
+i = i + 1
+.Range("A" & i).Value = "Escalation resolution criteria"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).WrapText = True
+.Range("A" & i).RowHeight = 30
+.Range("B" & i, "G" & i).Merge
+u = PlainText(Nz(rs1!Escalation_Resolution_Criteria, ""))
+.Range("B" & i).Value = u
+.Range("B" & i).WrapText = True
+i = i + 1
+.Range("B" & i, "C" & i).Merge
+.Range("B" & i).Value = "Stake holder Name"
+.Range("B" & i).Font.Bold = True
+.Range("D" & i).Value = "Role"
+.Range("D" & i).Font.Bold = True
+.Range("E" & i, "F" & i).Merge
+.Range("E" & i).Value = "Stake holder Name"
+.Range("E" & i).Font.Bold = True
+.Range("G" & i).Value = "Role"
+.Range("G" & i).Font.Bold = True
+i = i + 1
+SQL1 = "SELECT [Resource Table].Stakeholder_Name , [Resource Table].Designation " & _
+"FROM [Resource Table] WHERE [Resource Table].Escalation_ID = " & j
+SQL2 = "SELECT Count([Resource Table].Escalation_ID) AS cnt " & _
+"FROM [Resource Table]" & _
+"WHERE [Resource Table].Escalation_ID = " & j
+SQL3 = "SELECT Blocking_Actions.Blocking_Action, Blocking_Actions.Resource_Name1, " & _
+"Blocking_Actions.Resource_Name2, Blocking_Actions.Due_Date, Blocking_Actions.New_Due_Date, " & _
+"Blocking_Actions.Due_Date_Slip_ctr, Blocking_Actions.Status " & _
+"FROM Blocking_Actions" & _
+" WHERE Blocking_Actions.Escalation_ID = " & j
+Set rs3 = CurrentDb.OpenRecordset(SQL2, dbOpenSnapshot)
+l = Nz(rs3("cnt"))
+m = Round(l / 2)
+Dim n2 As Integer
+n2 = m + 1
+Dim o2 As Integer
+o2 = i + m
+Dim p2 As Integer
+p2 = i
+Dim q2 As Integer
+'MsgBox l, vbOKOnly
+'MsgBox m, vbOKOnly
+Set rs2 = CurrentDb.OpenRecordset(SQL1, dbOpenSnapshot)
+Do While Not rs2.EOF
+.Range("B" & i, "C" & i).Merge
+.Range("B" & i).Value = Nz(rs2!Stakeholder_Name, "")
+.Range("B" & i).WrapText = True
+.Range("D" & i).Value = Nz(rs2!Designation, "")
+.Range("D" & i).WrapText = True
+On Error Resume Next
+rs2.MoveNext
+.Range("E" & i, "F" & i).Merge
+.Range("E" & i).Value = Nz(rs2!Stakeholder_Name, "")
+.Range("E" & i).WrapText = True
+.Range("G" & i).Value = Nz(rs2!Designation, "")
+.Range("G" & i).WrapText = True
+'if there are no records to avoid the error "error number 2147352567 no current record" below line is put in as it would stop and give have baked excel file
+On Error Resume Next
+i = i + 1
+rs2.MoveNext
+Loop
+p2 = p2 - 1
+q2 = i - 1
+.Range("A" & p2, "A" & q2).Merge
+On Error Resume Next
+.Range("A" & p2).VerticalAlignment = xlCenter
+.Range("A" & p2).HorizontalAlignment = xlLeft
+.Range("A" & p2).Orientation = 0
+.Range("A" & p2).Value = "Resources"
+.Range("A" & p2).Font.Bold = True
+.Range("A" & p2).Cells.AutoFit
+On Error Resume Next
+'ApXL.ActiveSheet.Cells.EntireColumn.AutoFit
+rs2.close
+Set rs2 = Nothing
+.Range("A" & i, "G" & i).Merge
+.Range("A" & i).HorizontalAlignment = xlCenter
+.Range("A" & i).Value = "Blocking Actions"
+.Range("A" & i).Interior.ColorIndex = 15
+.Range("A" & i).Font.ColorIndex = 2
+.Range("A" & i).Font.Bold = True
+i = i + 1
+.Range("A" & i).Value = "Blocking Action"
+.Range("A" & i).Font.Bold = True
+.Range("B" & i, "C" & i).Merge
+.Range("B" & i).Value = "Action Owner"
+'.Range("B" & i).HorizontalAlignment = xlCenter
+.Range("B" & i).Font.Bold = True
+.Range("D" & i).Value = "Due Date"
+.Range("D" & i).Font.Bold = True
+.Range("E" & i).Value = "New Due Date"
+.Range("E" & i).Font.Bold = True
+.Range("F" & i).Value = "Due Date Slip Counter"
+.Range("F" & i).Font.Bold = True
+.Range("G" & i).Value = "Status"
+.Range("G" & i).Font.Bold = True
+i = i + 1
+'MsgBox i, vbOKOnly
+Set rs4 = CurrentDb.OpenRecordset(SQL3, dbOpenSnapshot)
+Do While Not rs4.EOF
+.Range("A" & i).Value = Nz(rs4!Blocking_Action, "")
+.Range("A" & i).WrapText = True
+.Range("B" & i).Value = Nz(rs4!Resource_Name1, "")
+.Range("C" & i).Value = Nz(rs4!Resource_Name2, "")
+.Range("D" & i).Value = Nz(rs4!Due_Date, "")
+.Range("D" & i).NumberFormat = "mm/dd/yyyy"
+.Range("E" & i).Value = Nz(rs4!New_Due_Date, "")
+.Range("E" & i).NumberFormat = "mm/dd/yyyy"
+'//
+.Range("F" & i).Value = Nz(rs4!Due_Date_Slip_ctr, "")
+.Range("F" & i).NumberFormat = 0
+'//
+.Range("G" & i).Value = Nz(rs4!Status, "")
+On Error Resume Next
+i = i + 1
+rs4.MoveNext
+Loop
+rs4.close
+Set rs4 = Nothing
+'i = i + 1
+.Range("A" & i, "C" & i).Merge
+.Range("A" & i).Value = "Escalation Open Date"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).WrapText = True
+.Range("D" & i).Value = Nz(rs1!Date_Escalation_Opened, "")
+.Range("D" & i).NumberFormat = "mm/dd/yyyy"
+.Range("E" & i, "F" & i).Merge
+.Range("E" & i).Value = "Days Escalation in Open Status"
+.Range("E" & i).Font.Bold = True
+'//
+.Range("G" & i).Value = Nz(rs1!Days_Escalation_Open, "")
+.Range("G" & i).NumberFormat = 0
+'//
+.Range("A" & i, "G" & i).Interior.ColorIndex = 19
+i = i + 1
+.Range("A" & i, "C" & i).Merge
+.Range("A" & i).Value = "Closure Target Date"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).WrapText = True
+.Range("D" & i).Value = Nz(rs1!Closure_Target_Date, "")
+.Range("D" & i).NumberFormat = "mm/dd/yyyy"
+.Range("E" & i, "F" & i).Merge
+.Range("E" & i).Value = "Updated Closure Target Date"
+.Range("E" & i).Font.Bold = True
+.Range("G" & i).Value = Nz(rs1!Updated_Closure_Target_Date, "")
+.Range("G" & i).NumberFormat = "mm/dd/yyyy"
+.Range("A" & i, "G" & i).Interior.ColorIndex = 19
+i = i + 1
+.Range("A" & i, "C" & i).Merge
+.Range("A" & i).Value = "Date Escalation Put on Monitor"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).WrapText = True
+'Dim z As Date
+'z = Nz(rs1!Date_Escalation_Put_in_Monitor, "")
+'z = Format(z, shortdate)
+.Range("D" & i).Value = Nz(rs1!Date_Escalation_Put_in_Monitor, "")
+.Range("D" & i).NumberFormat = "mm/dd/yyyy"
+.Range("E" & i, "F" & i).Merge
+.Range("E" & i).Value = "Days Escalation in Monitor Status"
+.Range("E" & i).Font.Bold = True
+'//
+.Range("G" & i).Value = Nz(rs1!Days_Escalation_Monitor, "")
+.Range("G" & i).NumberFormat = 0
+'//
+.Range("A" & i, "G" & i).Interior.ColorIndex = 19
+i = i + 1
+.Range("A" & i, "C" & i).Merge
+.Range("A" & i).Value = "Date Closed"
+.Range("A" & i).Font.Bold = True
+.Range("A" & i).WrapText = True
+.Range("D" & i).Value = Nz(rs1!Date_Escalation_Closed, "")
+.Range("D" & i).NumberFormat = "mm/dd/yyyy"
+.Range("E" & i, "F" & i).Merge
+.Range("E" & i).Value = "Total Days"
+.Range("E" & i).Font.Bold = True
+'//
+.Range("G" & i).Value = Nz(rs1!Total_Days, "")
+.Range("G" & i).NumberFormat = 0
+'//
+.Range("A" & i, "G" & i).Interior.ColorIndex = 19
+
+i = i + 1
+
+.Range("A" & i, "G" & i).Merge
+.Range("A" & i).Interior.ColorIndex = 47
+i = i + 1
+'i = i + 2
+s = i - 1
+.Range("A" & r, "G" & s).Borders.LineStyle = xlContinuous
+
+rs1.MoveNext
+Loop
+End With
+'xlSheet.Range("A2").Select
+'xlSheet.Range(A2, G2).Merge
+'xlSheet.Range(A2).Value = "Avaya - Proprietary and Confidential. For Limited Internal Distribution Only. The information contained in this document may not be distributed or reproduced, in whole or in part. "
+'xlSheet.Range(A2).Font.Color = vbRed
+'xlSheet.Range(A2).Font.Bold = True
+'xlSheet.Range(A2).WrapText = True
+subExit:
+On Error Resume Next
+DoCmd.Hourglass False
+
+
+rs1.close
+'rs2.close
+rs3.close
+
+Set rs1 = Nothing
+Set rs3 = Nothing
+
+Worksheets("Open Escalations").Select
+Worksheets("Open Escalations").Move Before:=Worksheets(1)
+'// made chnages here to see if we could have closed escalation sheet after open escalations sheet
+Worksheets("Closed Escalations").Select
+Worksheets("Closed Escalations").Move Before:=Worksheets(2)
+Worksheets("Open Escalations").Select
+'Worksheets(1).Move Before = Worksheets(2)
+xlApp.Visible = True
+
+
+Exit Sub
+
+subError:
+MsgBox "Error Number:" & Err.Number & "- " & Err.Description, vbCritical + vbOKOnly, "An error has occured"
+GoTo subExit
+
+End Sub
+
+
+
+'------------------------------------------------------------
+' Command35_Click
+'
+'------------------------------------------------------------
+Private Sub Command35_Click()
+On Error GoTo Command35_Click_Err
+
+    DoCmd.OpenForm "ReportESCSLAFY", acNormal, "", "", , acNormal
+
+
+Command35_Click_Exit:
+    Exit Sub
+
+Command35_Click_Err:
+    MsgBox Error$
+    Resume Command35_Click_Exit
+
+End Sub
+
+
+'------------------------------------------------------------
+' Command36_Click
+'
+'------------------------------------------------------------
+Private Sub Command36_Click()
+On Error GoTo Command36_Click_Err
+
+    ' _AXL:<?xml version="1.0" encoding="UTF-16" standalone="no"?>
+    ' <UserInterfaceMacro For="Command35" xmlns="http://schemas.microsoft.com/office/accessservices/2009/11/application"><Statements><Action Name="OpenForm"><Argument Name="FormName">ReportESCSLAFY
+    ' _AXL:</Argument></Action></Statements></UserInterfaceMacro>
+    DoCmd.OpenForm "ReportclosedESCSLAforaqtrandFY", acNormal, "", "", , acNormal
+
+
+Command36_Click_Exit:
+    Exit Sub
+
+Command36_Click_Err:
+    MsgBox Error$
+    Resume Command36_Click_Exit
+
+End Sub
+
+
+'------------------------------------------------------------
+' Command37_Click
+'
+'------------------------------------------------------------
+Private Sub Command37_Click()
+On Error GoTo Command37_Click_Err
+
+    ' _AXL:<?xml version="1.0" encoding="UTF-16" standalone="no"?>
+    ' <UserInterfaceMacro For="Command36" xmlns="http://schemas.microsoft.com/office/accessservices/2009/11/application"><Statements><Action Name="OpenForm"><Argument Name="FormName">ReportclosedES
+    ' _AXL:CSLAforaqtrandFY</Argument></Action></Statements></UserInterfaceMacro>
+    DoCmd.OpenForm "OpenESCSLAReport", acNormal, "", "", , acNormal
+
+
+Command37_Click_Exit:
+    Exit Sub
+
+Command37_Click_Err:
+    MsgBox Error$
+    Resume Command37_Click_Exit
+
+End Sub
+
+
+'------------------------------------------------------------
+' allopnescsummry_Click
+'
+'------------------------------------------------------------
+Private Sub allopnescsummry_Click()
+On Error GoTo allopnescsummry_Click_Err
+
+    ' _AXL:<?xml version="1.0" encoding="UTF-16" standalone="no"?>
+    ' <UserInterfaceMacro For="Command37" xmlns="http://schemas.microsoft.com/office/accessservices/2009/11/application"><Statements><Action Name="OpenForm"><Argument Name="FormName">OpenESCSLARepo
+    ' _AXL:rt</Argument></Action></Statements></UserInterfaceMacro>
+    DoCmd.OpenReport "Total_OpenEsc_EscMgrqry", acViewReport, "", "", acNormal
+
+
+allopnescsummry_Click_Exit:
+    Exit Sub
+
+allopnescsummry_Click_Err:
+    MsgBox Error$
+    Resume allopnescsummry_Click_Exit
+
+End Sub
+
+
+'------------------------------------------------------------
+' escsummary_Click
+'
+'------------------------------------------------------------
+Private Sub escsummary_Click()
+On Error GoTo escsummary_Click_Err
+
+    ' _AXL:<?xml version="1.0" encoding="UTF-16" standalone="no"?>
+    ' <UserInterfaceMacro For="allopnescsummry" xmlns="http://schemas.microsoft.com/office/accessservices/2009/11/application"><Statements><Action Name="OpenReport"><Argument Name="ReportName">Tota
+    ' _AXL:l_OpenEsc_EscMgrqry</Argument></Action></Statements></UserInterfaceMacro>
+    DoCmd.OpenForm "execreport", acNormal, "", "", , acNormal
+
+
+escsummary_Click_Exit:
+    Exit Sub
+
+escsummary_Click_Err:
+    MsgBox Error$
+    Resume escsummary_Click_Exit
+
+End Sub
+
+
+'------------------------------------------------------------
+' Command49_Click
+'
+'------------------------------------------------------------
+Private Sub Command49_Click()
+On Error GoTo Command49_Click_Err
+
+    ' _AXL:<?xml version="1.0" encoding="UTF-16" standalone="no"?>
+    ' <UserInterfaceMacro For="escsummary" Event="OnClick" xmlns="http://schemas.microsoft.com/office/accessservices/2009/11/application"><Statements><Action Name="OpenForm"><Argument Name="FormNam
+    ' _AXL:e">execreport</Argument></Action></Statements></UserInterfaceMacro>
+    DoCmd.OpenForm "ReportontotalcountEScInicAP", acNormal, "", "", , acNormal
+
+
+Command49_Click_Exit:
+    Exit Sub
+
+Command49_Click_Err:
+    MsgBox Error$
+    Resume Command49_Click_Exit
+
+End Sub
+
+
+'------------------------------------------------------------
+' Command50_Click
+'
+'------------------------------------------------------------
+Private Sub Command50_Click()
+On Error GoTo Command50_Click_Err
+
+    ' _AXL:<?xml version="1.0" encoding="UTF-16" standalone="no"?>
+    ' <UserInterfaceMacro For="Command49" xmlns="http://schemas.microsoft.com/office/accessservices/2009/11/application"><Statements><Action Name="OpenForm"><Argument Name="FormName">Reportontotalc
+    ' _AXL:ountEScInicAP</Argument></Action></Statements></UserInterfaceMacro>
+    DoCmd.OpenForm "ReportclosedInitiativeSLAforaqtrandFY", acNormal, "", "", , acNormal
+
+
+Command50_Click_Exit:
+    Exit Sub
+
+Command50_Click_Err:
+    MsgBox Error$
+    Resume Command50_Click_Exit
+
+End Sub
+
+
+'------------------------------------------------------------
+' Command51_Click
+'
+'------------------------------------------------------------
+Private Sub Command51_Click()
+On Error GoTo Command51_Click_Err
+
+    ' _AXL:<?xml version="1.0" encoding="UTF-16" standalone="no"?>
+    ' <UserInterfaceMacro For="Command50" Event="OnClick" xmlns="http://schemas.microsoft.com/office/accessservices/2009/11/application"><Statements><Action Name="OpenForm"><Argument Name="FormName
+    ' _AXL:">ReportclosedInitiativeSLAforaqtrandFY</Argument></Action></Statements></UserInterfaceMacro>
+    DoCmd.OpenForm "ReportclosedCAPSLAforaqtrandFY", acNormal, "", "", , acNormal
+
+
+Command51_Click_Exit:
+    Exit Sub
+
+Command51_Click_Err:
+    MsgBox Error$
+    Resume Command51_Click_Exit
+
+End Sub
+
+
+'------------------------------------------------------------
+' Command52_Click
+'
+'------------------------------------------------------------
+Private Sub Command52_Click()
+On Error GoTo Command52_Click_Err
+
+    ' _AXL:<?xml version="1.0" encoding="UTF-16" standalone="no"?>
+    ' <UserInterfaceMacro For="Command51" Event="OnClick" xmlns="http://schemas.microsoft.com/office/accessservices/2009/11/application"><Statements><Action Name="OpenForm"><Argument Name="FormName
+    ' _AXL:">ReportclosedCAPSLAforaqtrandFY</Argument></Action></Statements></UserInterfaceMacro>
+    DoCmd.OpenForm "ReportCAPSLAFY", acNormal, "", "", , acNormal
+
+
+Command52_Click_Exit:
+    Exit Sub
+
+Command52_Click_Err:
+    MsgBox Error$
+    Resume Command52_Click_Exit
+
+End Sub
+
+
+'------------------------------------------------------------
+' Command53_Click
+'
+'------------------------------------------------------------
+Private Sub Command53_Click()
+On Error GoTo Command53_Click_Err
+
+    ' _AXL:<?xml version="1.0" encoding="UTF-16" standalone="no"?>
+    ' <UserInterfaceMacro For="Command52" Event="OnClick" xmlns="http://schemas.microsoft.com/office/accessservices/2009/11/application"><Statements><Action Name="OpenForm"><Argument Name="FormName
+    ' _AXL:">ReportCAPSLAFY</Argument></Action></Statements></UserInterfaceMacro>
+    DoCmd.OpenForm "ReportInitiativeSLAFY", acNormal, "", "", , acNormal
+
+
+Command53_Click_Exit:
+    Exit Sub
+
+Command53_Click_Err:
+    MsgBox Error$
+    Resume Command53_Click_Exit
+
+End Sub
+
+
+'------------------------------------------------------------
+' Command6_Click
+'
+'------------------------------------------------------------
+Private Sub Command6_Click()
+On Error GoTo Command6_Click_Err
+
+    ' _AXL:<?xml version="1.0" encoding="UTF-16" standalone="no"?>
+    ' <UserInterfaceMacro For="Command53" Event="OnClick" xmlns="http://schemas.microsoft.com/office/accessservices/2009/11/application"><Statements><Action Name="OpenForm"><Argument Name="FormName
+    ' _AXL:">ReportInitiativeSLAFY</Argument></Action></Statements></UserInterfaceMacro>
+    DoCmd.close , ""
+
+
+Command6_Click_Exit:
+    Exit Sub
+
+Command6_Click_Err:
+    MsgBox Error$
+    Resume Command6_Click_Exit
+
+End Sub
+
+
+'------------------------------------------------------------
+' Command42_Click
+'
+'------------------------------------------------------------
+Private Sub Command42_Click()
+On Error GoTo Command42_Click_Err
+
+    ' _AXL:<?xml version="1.0" encoding="UTF-16" standalone="no"?>
+    ' <UserInterfaceMacro For="Command6" xmlns="http://schemas.microsoft.com/office/accessservices/2009/11/application"><Statements><Action Name="CloseWindow"/></Statements></UserInterfaceMacro>
+    DoCmd.OpenForm "aboutfrm", acNormal, "", "", , acNormal
+
+
+Command42_Click_Exit:
+    Exit Sub
+
+Command42_Click_Err:
+    MsgBox Error$
+    Resume Command42_Click_Exit
+
+End Sub
+
+
+'------------------------------------------------------------
+' Command71_Click
+'
+'------------------------------------------------------------
+Private Sub Command71_Click()
+On Error GoTo Command71_Click_Err
+
+    ' _AXL:<?xml version="1.0" encoding="UTF-16" standalone="no"?>
+    ' <UserInterfaceMacro For="Command42" xmlns="http://schemas.microsoft.com/office/accessservices/2009/11/application"><Statements><Action Name="OpenForm"><Argument Name="FormName">aboutfrm</Argu
+    ' _AXL:ment></Action></Statements></UserInterfaceMacro>
+    DoCmd.OpenForm "ReportclosedESCSLAforaqtrandCY", acNormal, "", "", , acNormal
+
+
+Command71_Click_Exit:
+    Exit Sub
+
+Command71_Click_Err:
+    MsgBox Error$
+    Resume Command71_Click_Exit
+
+End Sub
+
+
+'------------------------------------------------------------
+' Command72_Click
+'
+'------------------------------------------------------------
+Private Sub Command72_Click()
+On Error GoTo Command72_Click_Err
+
+    ' _AXL:<?xml version="1.0" encoding="UTF-16" standalone="no"?>
+    ' <UserInterfaceMacro For="Command71" Event="OnClick" xmlns="http://schemas.microsoft.com/office/accessservices/2009/11/application"><Statements><Action Name="OpenForm"><Argument Name="FormName
+    ' _AXL:">ReportclosedESCSLAforaqtrandCY</Argument></Action></Statements></UserInterfaceMacro>
+    DoCmd.OpenForm "ReportclosedInitiativeSLAforaqtrandCY", acNormal, "", "", , acNormal
+
+
+Command72_Click_Exit:
+    Exit Sub
+
+Command72_Click_Err:
+    MsgBox Error$
+    Resume Command72_Click_Exit
+
+End Sub
+
+
+'------------------------------------------------------------
+' Command73_Click
+'
+'------------------------------------------------------------
+Private Sub Command73_Click()
+On Error GoTo Command73_Click_Err
+
+    ' _AXL:<?xml version="1.0" encoding="UTF-16" standalone="no"?>
+    ' <UserInterfaceMacro For="Command72" Event="OnClick" xmlns="http://schemas.microsoft.com/office/accessservices/2009/11/application"><Statements><Action Name="OpenForm"><Argument Name="FormName
+    ' _AXL:">ReportclosedInitiativeSLAforaqtrandCY</Argument></Action></Statements></UserInterfaceMacro>
+    DoCmd.OpenForm "ReportclosedCAPSLAforaqtrandCY", acNormal, "", "", , acNormal
+
+
+Command73_Click_Exit:
+    Exit Sub
+
+Command73_Click_Err:
+    MsgBox Error$
+    Resume Command73_Click_Exit
+
+End Sub
+
+
+'------------------------------------------------------------
+' Command74_Click
+'
+'------------------------------------------------------------
+Private Sub Command74_Click()
+On Error GoTo Command74_Click_Err
+
+    ' _AXL:<?xml version="1.0" encoding="UTF-16" standalone="no"?>
+    ' <UserInterfaceMacro For="Command73" Event="OnClick" xmlns="http://schemas.microsoft.com/office/accessservices/2009/11/application"><Statements><Action Name="OpenForm"><Argument Name="FormName
+    ' _AXL:">ReportclosedCAPSLAforaqtrandCY</Argument></Action></Statements></UserInterfaceMacro>
+    DoCmd.OpenForm "Escfutureclosuredates", acNormal, "", "", , acNormal
+
+
+Command74_Click_Exit:
+    Exit Sub
+
+Command74_Click_Err:
+    MsgBox Error$
+    Resume Command74_Click_Exit
+
+End Sub
+
+
+'------------------------------------------------------------
+' Command75_Click
+'
+'------------------------------------------------------------
+Private Sub Command75_Click()
+On Error GoTo Command75_Click_Err
+
+    ' _AXL:<?xml version="1.0" encoding="UTF-16" standalone="no"?>
+    ' <UserInterfaceMacro For="Command74" Event="OnClick" xmlns="http://schemas.microsoft.com/office/accessservices/2009/11/application"><Statements><Action Name="OpenForm"><Argument Name="FormName
+    ' _AXL:">Escfutureclosuredates</Argument></Action></Statements></UserInterfaceMacro>
+    DoCmd.OpenForm "Esc FailureMode Breakup", acNormal, "", "", , acNormal
+
+
+Command75_Click_Exit:
+    Exit Sub
+
+Command75_Click_Err:
+    MsgBox Error$
+    Resume Command75_Click_Exit
+
+End Sub
+
+
+'------------------------------------------------------------
+' Command76_Click
+'
+'------------------------------------------------------------
+Private Sub Command76_Click()
+On Error GoTo Command76_Click_Err
+
+    ' _AXL:<?xml version="1.0" encoding="UTF-16" standalone="no"?>
+    ' <UserInterfaceMacro For="Command75" Event="OnClick" xmlns="http://schemas.microsoft.com/office/accessservices/2009/11/application"><Statements><Action Name="OpenForm"><Argument Name="FormName
+    ' _AXL:">Esc FailureMode Breakup</Argument></Action></Statements></UserInterfaceMacro>
+    DoCmd.OpenForm "Esc_FailureMode_FY_Breakup", acNormal, "", "", , acNormal
+
+
+Command76_Click_Exit:
+    Exit Sub
+
+Command76_Click_Err:
+    MsgBox Error$
+    Resume Command76_Click_Exit
+
+End Sub
+
+
+'------------------------------------------------------------
+' Command87_Click
+'
+'------------------------------------------------------------
+Private Sub Command87_Click()
+On Error GoTo Command87_Click_Err
+
+    ' _AXL:<?xml version="1.0" encoding="UTF-16" standalone="no"?>
+    ' <UserInterfaceMacro For="Command76" Event="OnClick" xmlns="http://schemas.microsoft.com/office/accessservices/2009/11/application"><Statements><Action Name="OpenForm"><Argument Name="FormName
+    ' _AXL:">Esc_FailureMode_FY_Breakup</Argument></Action></Statements></UserInterfaceMacro>
+    DoCmd.OpenForm "Esc_FailureMode_CY_Breakup", acNormal, "", "", , acNormal
+
+
+Command87_Click_Exit:
+    Exit Sub
+
+Command87_Click_Err:
+    MsgBox Error$
+    Resume Command87_Click_Exit
+
+End Sub
+
+
+'------------------------------------------------------------
+' Command86_Click
+'
+'------------------------------------------------------------
+Private Sub Command86_Click()
+On Error GoTo Command86_Click_Err
+
+    ' _AXL:<?xml version="1.0" encoding="UTF-16" standalone="no"?>
+    ' <UserInterfaceMacro For="Command87" Event="OnClick" xmlns="http://schemas.microsoft.com/office/accessservices/2009/11/application"><Statements><Action Name="OpenForm"><Argument Name="FormName
+    ' _AXL:">Esc_FailureMode_CY_Breakup</Argument></Action></Statements></UserInterfaceMacro>
+    DoCmd.OpenForm "ReportInitiativeSLACY", acNormal, "", "", , acNormal
+
+
+Command86_Click_Exit:
+    Exit Sub
+
+Command86_Click_Err:
+    MsgBox Error$
+    Resume Command86_Click_Exit
+
+End Sub
+
+
+'------------------------------------------------------------
+' Command85_Click
+'
+'------------------------------------------------------------
+Private Sub Command85_Click()
+On Error GoTo Command85_Click_Err
+
+    ' _AXL:<?xml version="1.0" encoding="UTF-16" standalone="no"?>
+    ' <UserInterfaceMacro For="Command86" Event="OnClick" xmlns="http://schemas.microsoft.com/office/accessservices/2009/11/application"><Statements><Action Name="OpenForm"><Argument Name="FormName
+    ' _AXL:">ReportInitiativeSLACY</Argument></Action></Statements></UserInterfaceMacro>
+    DoCmd.OpenForm "ReportCAPSLACY", acNormal, "", "", , acNormal
+
+
+Command85_Click_Exit:
+    Exit Sub
+
+Command85_Click_Err:
+    MsgBox Error$
+    Resume Command85_Click_Exit
+
+End Sub
+
+
+'------------------------------------------------------------
+' Command84_Click
+'
+'------------------------------------------------------------
+Private Sub Command84_Click()
+On Error GoTo Command84_Click_Err
+
+    ' _AXL:<?xml version="1.0" encoding="UTF-16" standalone="no"?>
+    ' <UserInterfaceMacro For="Command85" Event="OnClick" xmlns="http://schemas.microsoft.com/office/accessservices/2009/11/application"><Statements><Action Name="OpenForm"><Argument Name="FormName
+    ' _AXL:">ReportCAPSLACY</Argument></Action></Statements></UserInterfaceMacro>
+    DoCmd.OpenForm "ReportESCSLACY", acNormal, "", "", , acNormal
+
+
+Command84_Click_Exit:
+    Exit Sub
+
+Command84_Click_Err:
+    MsgBox Error$
+    Resume Command84_Click_Exit
+
+End Sub
+
+
